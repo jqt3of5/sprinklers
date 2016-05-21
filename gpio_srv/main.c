@@ -1,6 +1,9 @@
-#include <stdlib.h>
-#include <stdio.h>
+#include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/un.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <errno.h>
 #include "bcm2835.h"
 
 int main(int argc, char ** argv)
@@ -11,22 +14,49 @@ int main(int argc, char ** argv)
 	if (sockfd < 0)
 	{
 		printf("Failed to open the socket");
+		return 1;
 	}
+
+	memset(&server_address, 0, sizeof(server_address));
 	server_address.sun_family = AF_UNIX;
-	strcpy(server_address.sun_path, "gpio_server");
+	strcpy(server_address.sun_path, "/tmp/gpio.sock");
 
 	int struct_len = sizeof(server_address);
-	bind(sockfd, (sockaddr*)&server_address, struct_len);
+	int rc = unlink(server_address.sun_path);
+	if (rc < 0)
+	{
+		printf("Failed to unbind the socket: %d", errno);
+		return 1;
+	}
+	rc = bind(sockfd, (sockaddr*)&server_address, struct_len);
+	if (rc < 0)
+	{
+		printf("bind failed: %d", errno);
+		return 1;
+	}
+	rc = listen(sockfd, 5);
+	if (rc < 0)
+	{
+		printf("listen failed: %d", errno);
+		return 1;
+	}
 
-	listen(sockfd, 5);
+	bcm2835_init();
+
 	while(true)
 	{
-		int client_struct_len = 0;
-		int client_sockfd = accept(sockfd, (sockfd*)&client_address, &client_struct_len);
-
+		socklen_t client_struct_len = sizeof(&client_address);
+		int client_sockfd = accept(sockfd, (sockaddr*)&client_address, &client_struct_len);
+		if (client_sockfd < 0)
+		{
+			printf("accept failed %d", errno);
+			continue;
+		}
+		printf("accept succeeded: ");
 		//The client should send a length of 0 to quit the communication. 
 		char len;
 		read(client_sockfd, &len, 1);
+		printf("read length: %d ", len);
 		while (len > 0)
 		{
 			char buffer[128] = {0};
@@ -44,42 +74,54 @@ int main(int argc, char ** argv)
 				switch(cmd)
 				{
 					//Config the pin
-					switch 0:
+					case 0:
 					if (operands & 0x01)
 					{
+						printf("Set to input, pin: %d\n", pin);
 						bcm2835_gpio_fsel(pin, BCM2835_GPIO_FSEL_INPT);
 					}
 					else
 					{
+						printf("Set to output, pin: %d\n", pin);
 						bcm2835_gpio_fsel(pin, BCM2835_GPIO_FSEL_OUTP);
 					}
 					//TODO: Grab a second byte for pull up/down and functional
 					break;
 					//Read the pin value
-					switch 1:
+					case 1:
+					printf("Get input value, pin: %d\n", pin);
+
 					val = bcm2835_gpio_lev(pin);
 					break;
 					//Set the pin value
-					switch 2:
+					case 2:
 					val = operands & 0x1;
 					if (val)
 					{
+						printf("Set high, pin: %d\n", pin);
 						bcm2835_gpio_set(pin);
 					}
 					else
 					{
+						printf("Set low, pin: %d\n", pin);
 						bcm2835_gpio_clr(pin);
 					}
 					break;
 					//None yet
-					switch 3:
+					case 3:
 					break;
 				}
 				//Respond to each byte.
 				write(client_sockfd, &val, 1);
 			}
 			read(client_sockfd, &len, 1);
-			close(client_sockfd);
+			printf("read length: %d ", len);
+			if (len == 0)
+			{
+				printf("\n");
+			}
+
 		}
+		close(client_sockfd);
 	}
 }
