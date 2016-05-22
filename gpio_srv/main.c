@@ -1,3 +1,16 @@
+//=========================================================================
+// Author: John Todd
+// Date: 22-5-2016
+// Description: This hardware service provides an abstraction and interface
+//              to the GPIO pins. It uses the bcm2835 GPIO library to interact 
+//              with the hardware. And it provides either a UNIX or INET
+//              socket interface.
+//
+// Command Format:
+//    Config      - 00pppppd
+//    Input Value - 01pppppx
+//    Set Output  - 10pppppd
+//=========================================================================
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
