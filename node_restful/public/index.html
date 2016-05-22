@@ -18,7 +18,7 @@
 					checkbox.checked = ajax.responseText === "0";
 				}
 			};
-			var endpoint = "http://192.168.1.131:8080/gpio/" + checkbox.id;
+			var endpoint = "gpio/" + checkbox.id;
 			console.log(endpoint);
 			ajax.open("GET", endpoint);
 			ajax.responseType = "text";
@@ -33,7 +33,7 @@
 					
 				}
 			};
-			var endpoint = "http://192.168.1.131:8080/gpio/" + checkbox.id + (checkbox.checked ? "/clr" : "/set");
+			var endpoint = "gpio/" + checkbox.id + (checkbox.checked ? "/clr" : "/set");
 			console.log(endpoint);
 			ajax.open("POST", endpoint);
 
@@ -124,6 +124,26 @@ input:checked + .slider:before {
 	GPIO 5:
 	 <label class="switch">
 	   <input id="5" type="checkbox" onclick="checkbox_clicked(this)">
+ 	   <div class="slider"></div>
+ 	 </label><br>
+	GPIO 6:
+	 <label class="switch">
+	   <input id="6" type="checkbox" onclick="checkbox_clicked(this)">
+ 	   <div class="slider"></div>
+ 	 </label><br>
+	GPIO 7:
+	 <label class="switch">
+	   <input id="7" type="checkbox" onclick="checkbox_clicked(this)">
+ 	   <div class="slider"></div>
+ 	 </label><br>
+	GPIO 8:
+	 <label class="switch">
+	   <input id="8" type="checkbox" onclick="checkbox_clicked(this)">
+ 	   <div class="slider"></div>
+ 	 </label><br>
+	GPIO 9:
+	 <label class="switch">
+	   <input id="9" type="checkbox" onclick="checkbox_clicked(this)">
  	   <div class="slider"></div>
  	 </label><br>
 	</body>
