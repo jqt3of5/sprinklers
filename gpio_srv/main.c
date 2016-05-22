@@ -83,9 +83,10 @@ int main(int argc, char ** argv)
 					break;
 					//Read the pin value
 					case 1:
-					printf("Get input value, pin: %d\n", pin);
+					printf("Get input value, pin: %d ", pin);
 
 					val = bcm2835_gpio_lev(pin);
+					printf("Pin value: %d\n", val);
 					break;
 					//Set the pin value
 					case 2:

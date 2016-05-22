@@ -41,7 +41,7 @@ app.get('/gpio/:pin', function(req, res) {
     var cmd = [0x01 << 6 | pin << 1];
 
     gpio.send(cmd, function (data) {
-	res.end(data);
+	res.end(data.readInt8(0).toString());
     });
 });
 
@@ -81,7 +81,5 @@ app.post('/gpio/:pin/pulse', function(req, res) {
 });
 
 var server = app.listen(8080, function(){
-
-    console.log("Started listening");
-			    
+    console.log("Started listening");			
 });

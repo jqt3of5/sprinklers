@@ -11,7 +11,7 @@ function gpio_send(commands, completion)
 
     var bytesRecieved = new Buffer(0);
     client.on('data', function (data) {
-        bytesRecieved += data;
+        bytesRecieved = Buffer.concat([bytesRecieved,data]);
         console.log(data);
         //Then read that number of bytes
         if (bytesRecieved.length >= commands.length)
