@@ -1,3 +1,5 @@
+var device_buttons = [];
+
 window.onload = function()
 {
     device_buttons = [document.getElementById("thermometer-button"),document.getElementById("garage-button"), document.getElementById("sprinkler-button")];
@@ -5,7 +7,7 @@ window.onload = function()
     window.setInterval(refreshDevices, 1000);
 }
 
-var device_buttons = []; 
+
 var devices = [];
 
 function refreshDevices()
@@ -42,6 +44,7 @@ function tempClick()
     temp.style.display = "block";
 
     window.setInterval(refreshTempuratures, 2000);
+    refreshTempuratures();
 }
 
 function garageClick()
@@ -53,6 +56,7 @@ function garageClick()
     garage.style.display = "block";
 
     window.setInterval(refreshGarage, 500);
+    refreshGarage();
 }
 
 function toggleGarageClick()
