@@ -146,51 +146,40 @@ void setup()
   }
 }
 
-char processData(char * data, int count)
+char * processData(char * data, int count)
 {
-    char result = 0;
-    for (int i = 0; i < count; ++ i)
-    {
-      char cmd = (data[i] >> 6) & 0x03;
-      //The command argument
-      char arg;
-
-      Schedule schedule;
-      switch (cmd)
+  char cmd = data[0];
+  char * temp;
+  char pin = 0;
+  char * result = new char[9]();
+  switch (cmd)
       {
-        case 0:
+        case 'S':
         //write schedule
-        //00cccccc .......
         //move to the start of the data;
-        arg = data[i] & 0x3F;
-        memcpy(&schedule, &data[i+1], arg);
-        EEPROM.put(EEPROM_SCHEDULE, schedule);
-        i += arg + 1;
+        //arg = data[i] & 0x3F;
+        //memcpy(&schedule, &data[i+1], arg);
+        //EEPROM.put(EEPROM_SCHEDULE, schedule);
+        //i += arg + 1;
         break;
 
-        case 1:
-        result = 0;
-        //get pins state
-        //010ppp00
-        arg = (data[i] >> 2) & 0x0F;
+        case 'R':
         for (int j = 0; j < 8; ++j)
         {
-          result |= digitalRead(j) << j;
+          result[j] = digitalRead(j) == HIGH ? '1' : '0';
         }
         break;
 
-        case 2:
-        //set pin state
-        //100ppp0x
-        arg = (data[i] >> 2) & 0x0F;
-        digitalWrite(arg, data[i] & 0x03);
+        case 'W':
+        strtok(data, " ");
+        temp = strtok(nullptr, " ");
+        pin = atoi(temp);
+        temp = strtok(nullptr, " ");
+
+        digitalWrite(pin, atoi(temp) ? HIGH : LOW);
         break;
 
-        case 3:
-        break;
       }
-
-    }
     return result;
 }
 
@@ -202,16 +191,16 @@ void loop()
     int total = client.available();
     if (total)
     {
-      char * data = new char[total]();
+      char * data = new char[total+1]();
 
       for (int i = 0; client.available(); ++i)
       {
         data[i] = client.read();
-        ++i;
       }
       //Process Data
-      char result = processData(data, total);
-      client.write(result);
+      char * result = processData(data, total);
+
+      client.println(result);
     }
   }
   else if (_connected)
