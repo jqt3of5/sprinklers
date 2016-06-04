@@ -14,7 +14,7 @@ struct Page
 
 struct IpAddr
 {
-  byte ip[4];
+  byte addr[4];
 };
 
 struct Schedule
@@ -29,12 +29,16 @@ int handle_config(char ** urls, char ** keys, char**values, char * &response)
     if (!strcmp(keys[i], "ip"))
     {
       IpAddr ip;
-      ip.ip[0] = atoi(strtok(values[i], "."));
+      ip.addr[0] = atoi(strtok(values[i], "."));
       for (int i = 1; i < 4; ++i)
       {
-        ip.ip[i] = atoi(strtok(0, "."));
+        ip.addr[i] = atoi(strtok(0, "."));
       }
       EEPROM.put(EEPROM_HOST_ADDR, ip);
+    }
+    else if (!strcmp(keys[i], "url"))
+    {
+      
     }
   }
 
@@ -130,12 +134,12 @@ void setup()
 
   IpAddr ip;
   EEPROM.get(EEPROM_HOST_ADDR, ip);
-  if (ip.ip[0] == 0xFF)
+  if (ip.addr[0] == 0xFF)
   {
     //If no address is set, start listening.
     WiFi.listen();
   }
-  else if (!client.connect(ip.ip, 8081))
+  else if (!client.connect(ip.addr, 8081))
   {
     //If connecting failed, fall back to listening mode
     WiFi.listen();
@@ -152,15 +156,13 @@ char * processData(char * data, int count)
   char * temp;
   char pin = 0;
   char * result = new char[9]();
+  Schedule schedule;
   switch (cmd)
       {
         case 'S':
         //write schedule
-        //move to the start of the data;
-        //arg = data[i] & 0x3F;
-        //memcpy(&schedule, &data[i+1], arg);
-        //EEPROM.put(EEPROM_SCHEDULE, schedule);
-        //i += arg + 1;
+        memcpy(&schedule, &data[1], count - 1);
+        EEPROM.put(EEPROM_SCHEDULE, schedule);
         break;
 
         case 'R':
@@ -199,8 +201,9 @@ void loop()
       }
       //Process Data
       char * result = processData(data, total);
-
       client.println(result);
+      free(result);
+      free(data);
     }
   }
   else if (_connected)
@@ -208,7 +211,7 @@ void loop()
     IpAddr ip;
     EEPROM.get(EEPROM_HOST_ADDR, ip);
     //Try once to reconnect
-    if (!client.connect(ip.ip, 8081))
+    if (!client.connect(ip.addr, 8081))
     {
       _connected = false;
       WiFi.listen();
