@@ -38,7 +38,7 @@ int handle_config(char ** urls, char ** keys, char**values, char * &response)
     }
     else if (!strcmp(keys[i], "url"))
     {
-      
+
     }
   }
 
@@ -100,7 +100,7 @@ void http_handler(const char* url, ResponseCallback* cb, void* cbArg, Reader*bod
   char ** urls, **keys, **values;
   parse_url(url, urls, keys, values);
 
-  for (int i = 0; i < 2; ++i)
+  for (int i = 0; pages[i] != nullptr; ++i)
   {
     if (!strcmp(pages[i].url, urls[0]))
     {
