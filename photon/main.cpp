@@ -2,6 +2,7 @@
 #include <Particle.h>
 #include <softap_http.h>
 
+const char * DEVICE_TYPE = "relay";
 const byte CURRENT_VERSION = 0;
 const int EEPROM_VERSION = 0;
 const int EEPROM_HOST_ADDR = 1;
@@ -158,6 +159,8 @@ void setup()
       }
       else
       {
+        //Tell the cloud what type of device this is
+        client.println(DEVICE_TYPE);
         _connected = true;
       }
   }
