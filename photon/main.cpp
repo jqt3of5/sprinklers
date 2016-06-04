@@ -2,8 +2,10 @@
 #include <Particle.h>
 #include <softap_http.h>
 
-const int EEPROM_HOST_ADDR = 0;
-const int EEPROM_SCHEDULE = 4;
+const byte CURRENT_VERSION = 0;
+const int EEPROM_VERSION = 0;
+const int EEPROM_HOST_ADDR = 1;
+const int EEPROM_SCHEDULE = 5;
 
 struct Page
 {
@@ -100,7 +102,7 @@ void http_handler(const char* url, ResponseCallback* cb, void* cbArg, Reader*bod
   char ** urls, **keys, **values;
   parse_url(url, urls, keys, values);
 
-  for (int i = 0; pages[i] != nullptr; ++i)
+  for (int i = 0; pages[i].url != nullptr; ++i)
   {
     if (!strcmp(pages[i].url, urls[0]))
     {
@@ -132,21 +134,32 @@ void setup()
   pinMode(D6, OUTPUT);
   pinMode(D7, OUTPUT);
 
-  IpAddr ip;
-  EEPROM.get(EEPROM_HOST_ADDR, ip);
-  if (ip.addr[0] == 0xFF)
+  byte version;
+  EEPROM.get(EEPROM_VERSION, version);
+  if (version != CURRENT_VERSION)
   {
-    //If no address is set, start listening.
+    //TODO: Migrate somehow?
     WiFi.listen();
-  }
-  else if (!client.connect(ip.addr, 8081))
-  {
-    //If connecting failed, fall back to listening mode
-    WiFi.listen();
+    EEPROM.put(EEPROM_VERSION, CURRENT_VERSION);
   }
   else
   {
-    _connected = true;
+      IpAddr ip;
+      EEPROM.get(EEPROM_HOST_ADDR, ip);
+      if (ip.addr[0] == 0xFF)
+      {
+        //If no address is set, start listening.
+        WiFi.listen();
+      }
+      else if (!client.connect(ip.addr, 8081))
+      {
+        //If connecting failed, fall back to listening mode
+        WiFi.listen();
+      }
+      else
+      {
+        _connected = true;
+      }
   }
 }
 
