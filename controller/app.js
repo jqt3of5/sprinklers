@@ -98,9 +98,8 @@ var socket_server = net.createServer((socket) =>
 		if (device_connections[socket.remoteAddress] == undefined)
 		{
 			var device_info = JSON.parse(data);
-			var deviceId = uuid.v4();
-			device_connections[socket.remoteAddress] = {socket:socket, deviceId:deviceId};
-			device_infos[deviceId] = {deviceId:deviceId, ip:socket.remoteAddress, type:device_info.type, name:device_info.name};	
+			device_connections[socket.remoteAddress] = {socket:socket, deviceId:device_info.deviceId};
+			device_infos[device_info.deviceId] = {ip:socket.remoteAddress, type:device_info.type};	
 		}
 	});
 	
