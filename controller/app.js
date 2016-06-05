@@ -43,10 +43,10 @@ app.get('/:deviceId/gpio/:pin', function(req, res) {
     var pin = parseInt(req.params.pin);
     var cmd = "R " + pin;
 	
-	var deviceIp = deviceInfos[deviceId];
-	var deviceSocket = device_connections[deviceIp];
+	var deviceIp = device_infos[deviceId].ip;
+	var deviceSocket = device_connections[deviceIp].socket;
 	
-	deviceSocket.on('data', (data) => {
+	deviceSocket.on('data', function (data) {
 		var state = JSON.parse(data);
 		res.end(state);
 	});
@@ -59,7 +59,7 @@ app.post('/:deviceId/gpio/:pin/clr', function(req, res) {
     var pin = parseInt(req.params.pin);
     var cmd = "W " + pin + " 0";
 	
-	var deviceIp = deviceInfos[deviceId];
+	var deviceIp = device_infos[deviceId].ip;
 	var deviceSocket = device_connections[deviceIp];
 	
 	deviceSocket.write(cmd);
@@ -72,7 +72,7 @@ app.post('/:deviceId/gpio/:pin/set', function(req, res) {
     var pin = parseInt(req.params.pin);
     var cmd = "W " + pin + " 1";
 	
-	var deviceIp = deviceInfos[deviceId];
+	var deviceIp = device_infos[deviceId].ip;
 	var deviceSocket = device_connections[deviceIp];
 	
 	deviceSocket.write(cmd);
@@ -80,7 +80,7 @@ app.post('/:deviceId/gpio/:pin/set', function(req, res) {
 });
 
 app.get('/devices', function(req, res) {
-	res.end(device_infos);
+	res.end(JSON.stringify(device_infos));
 });
 
 var http_server = app.listen(8080, function(){
@@ -90,9 +90,9 @@ var http_server = app.listen(8080, function(){
 var device_connections = {};
 var device_infos = {};
 
-var socket_server = net.createServer((socket) =>
+var socket_server = net.createServer(function (socket)
 {
-	socket.on('data', (data) =>
+	socket.on('data', function (data)
 	{
 		//When the device first connects, it should send an object describing itself. name/type
 		if (device_connections[socket.remoteAddress] == undefined)
@@ -104,7 +104,7 @@ var socket_server = net.createServer((socket) =>
 		}
 	});
 	
-	socket.on('end', () =>
+	socket.on('end', function ()
 	{
 		//I don't know if this will work, because remoteAddress is supposed to be undefined when the client disconnects
 		var device = connected_devices[socket.remoteAddress];
@@ -114,6 +114,6 @@ var socket_server = net.createServer((socket) =>
 	})
 });
 
-socket_server.listen(8081, () => console.log("Server Started"));
+socket_server.listen(8081, function(){ console.log("Server Started")});
 
 
