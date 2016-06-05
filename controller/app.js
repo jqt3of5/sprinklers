@@ -40,15 +40,15 @@ app.delete('/:host/gpio/:pin', function(req, res) {
 //Get the value of a pin. 
 app.get('/:deviceId/gpio/:pin', function(req, res) {
 	var deviceId = req.params.deviceId;
-    var pin = parseInt(req.params.pin);
-    var cmd = "R " + pin;
+	var pin = parseInt(req.params.pin);
+	var cmd = "R " + pin;
 	
 	var deviceIp = device_infos[deviceId].ip;
 	var deviceSocket = device_connections[deviceIp].socket;
 	
 	deviceSocket.on('data', function (data) {
-		var state = JSON.parse(data);
-		res.end(state);
+		//var state = JSON.parse(data);
+		res.end(data);
 	});
 	deviceSocket.write(cmd);
 });
@@ -60,7 +60,7 @@ app.post('/:deviceId/gpio/:pin/clr', function(req, res) {
     var cmd = "W " + pin + " 0";
 	
 	var deviceIp = device_infos[deviceId].ip;
-	var deviceSocket = device_connections[deviceIp];
+	var deviceSocket = device_connections[deviceIp].socket;
 	
 	deviceSocket.write(cmd);
 	res.end();
@@ -73,7 +73,7 @@ app.post('/:deviceId/gpio/:pin/set', function(req, res) {
     var cmd = "W " + pin + " 1";
 	
 	var deviceIp = device_infos[deviceId].ip;
-	var deviceSocket = device_connections[deviceIp];
+	var deviceSocket = device_connections[deviceIp].socket;
 	
 	deviceSocket.write(cmd);
 	res.end();
