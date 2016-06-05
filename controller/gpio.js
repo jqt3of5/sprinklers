@@ -71,5 +71,5 @@ function send(name, commands, completion)
     });
 }
 
-exports.send = gpio_send;
+exports.send = send;
 	
