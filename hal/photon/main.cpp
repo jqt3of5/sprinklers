@@ -4,7 +4,7 @@
 #include "http.h"
 
 const char * DEVICE_TYPE = "relay";
-const char * DEVICE_NAME = "casbah";
+const char * DEVICE_ID = "996903cc-f22a-4c03-94b1-fd050d942ef2";
 const byte CURRENT_VERSION = 0;
 const int EEPROM_VERSION = 0;
 const int EEPROM_HOST_ADDR = 1;
@@ -55,7 +55,7 @@ void setup()
       else
       {
         //Tell the cloud what type of device this is
-        client.printf("{\"type\":\"%s\", \"name\":\"%s\"}",DEVICE_TYPE, DEVICE_NAME);
+        client.printf("{\"type\":\"%s\", \"deviceId\":\"%s\"}",DEVICE_TYPE, DEVICE_ID);
         _connected = true;
       }
   }
