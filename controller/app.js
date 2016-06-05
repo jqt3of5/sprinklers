@@ -106,9 +106,9 @@ var socket_server = net.createServer((socket) =>
 	socket.on('end', () =>
 	{
 		//I don't know if this will work, because remoteAddress is supposed to be undefined when the client disconnects
-		var device = connected_devices[socket.remoteAddress];
-		connected_devices[socket.remoteAddress] = undefined;
-		device_infos[device.deviceId] = undefined;
+		//var device = connected_devices[socket.remoteAddress];
+		//connected_devices[socket.remoteAddress] = undefined;
+		//device_infos[device.deviceId] = undefined;
 		
 	})
 });
