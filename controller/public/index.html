@@ -33,7 +33,7 @@
 					
 				}
 			};
-			var endpoint = "gpio/" + checkbox.id + (checkbox.checked ? "/clr" : "/set");
+			var endpoint = "rpi/gpio/" + checkbox.id + (checkbox.checked ? "/clr" : "/set");
 			console.log(endpoint);
 			ajax.open("POST", endpoint);
 

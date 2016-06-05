@@ -21,58 +21,63 @@ var gpio = require('./gpio');
 app.use(express.static('public'));
 
 //Allocate a new pin
-app.put('/gpio/:pin', function (req, res) {
+app.put('/:host/gpio/:pin', function (req, res) {
+    var host = req.params.host;
     var pin = parseInt(req.params.pin);
     var cmd = [0x00 << 6 | pin << 1 | 0];
 
-    gpio.send(cmd, function(data){
+    gpio.send(host, cmd, function(data, error){
         res.end();
     });
 });
 
 //unallocate a pin
-app.delete('/gpio/:pin', function(req, res) {
+app.delete('/:host/gpio/:pin', function(req, res) {
     res.end();
 });
 
 //Get the value of a pin. 
-app.get('/gpio/:pin', function(req, res) {
+app.get('/:host/gpio/:pin', function(req, res) {
+    var host = req.params.host;
     var pin = parseInt(req.params.pin);
     var cmd = [0x01 << 6 | pin << 1];
 
-    gpio.send(cmd, function (data) {
+    gpio.send(host, cmd, function (data, error) {
 	res.end(data.readInt8(0).toString());
     });
 });
 
 //Set the value of a pin to low
-app.post('/gpio/:pin/clr', function(req, res) {
+app.post('/:host/gpio/:pin/clr', function(req, res) {
+    var host = req.params.host;
     var pin = parseInt(req.params.pin);
     var cmd = [0x02 << 6 | pin << 1 | 0];
 
-    gpio.send(cmd, function (data) {
+    gpio.send(host, cmd, function (data, error) {
 	res.end(data);
     });
 });
 
 //set the value of a pin to high
-app.post('/gpio/:pin/set', function(req, res) {
+app.post('/:host/gpio/:pin/set', function(req, res) {
+    var host = req.params.host;
     var pin = parseInt(req.params.pin);
     var cmd = [0x02 << 6 | pin << 1 | 1];
 
-    gpio.send(cmd, function (data) {
+    gpio.send(host, cmd, function (data) {
 	res.end(data);
     });
 });
 
-app.post('/gpio/:pin/pulse', function(req, res) {
+app.post('/:host/gpio/:pin/pulse', function(req, res) {
+    var host = req.params.host;
     var pin = parseInt(req.params.pin);
     var cmd_on = [0x02 << 6 | pin << 1 | 0];
     var cmd_off = [0x02 << 6 | pin << 1 | 1];
 
-    gpio.send(cmd_on, function(data) {
+    gpio.send(host, cmd_on, function(data) {
 	setTimeout(function() {
-		gpio.send(cmd_off, function(data) {
+		gpio.send(cmd_off, function(data, error) {
 		    res.end();
 	        });
 
