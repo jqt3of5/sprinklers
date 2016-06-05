@@ -17,11 +17,12 @@ var app = express();
 var fs = require('fs');
 var net = require('net');
 var gpio = require('./gpio');
+var uuid = require('node-uuid');
 
 app.use(express.static('public'));
 
 //Allocate a new pin
-app.put('/:host/gpio/:pin', function (req, res) {
+/*app.put('/:host/gpio/:pin', function (req, res) {
     var host = req.params.host;
     var pin = parseInt(req.params.pin);
     var cmd = [0x00 << 6 | pin << 1 | 0];
@@ -35,56 +36,84 @@ app.put('/:host/gpio/:pin', function (req, res) {
 app.delete('/:host/gpio/:pin', function(req, res) {
     res.end();
 });
-
+*/
 //Get the value of a pin. 
-app.get('/:host/gpio/:pin', function(req, res) {
-    var host = req.params.host;
+app.get('/:deviceId/gpio/:pin', function(req, res) {
+	var deviceId = req.params.deviceId;
     var pin = parseInt(req.params.pin);
-    var cmd = [0x01 << 6 | pin << 1];
-
-    gpio.send(host, cmd, function (data, error) {
-	res.end(data.readInt8(0).toString());
-    });
+    var cmd = "R " + pin;
+	
+	var deviceIp = deviceInfos[deviceId];
+	var deviceSocket = device_connections[deviceIp];
+	
+	deviceSocket.on('data', (data) => {
+		var state = JSON.parse(data);
+		res.end(state);
+	});
+	deviceSocket.write(cmd);
 });
 
 //Set the value of a pin to low
-app.post('/:host/gpio/:pin/clr', function(req, res) {
-    var host = req.params.host;
+app.post('/:deviceId/gpio/:pin/clr', function(req, res) {
+	var deviceId = req.params.deviceId;
     var pin = parseInt(req.params.pin);
-    var cmd = [0x02 << 6 | pin << 1 | 0];
-
-    gpio.send(host, cmd, function (data, error) {
-	res.end(data);
-    });
+    var cmd = "W " + pin + " 0";
+	
+	var deviceIp = deviceInfos[deviceId];
+	var deviceSocket = device_connections[deviceIp];
+	
+	deviceSocket.write(cmd);
+	res.end();
 });
 
 //set the value of a pin to high
-app.post('/:host/gpio/:pin/set', function(req, res) {
-    var host = req.params.host;
+app.post('/:deviceId/gpio/:pin/set', function(req, res) {
+    var deviceId = req.params.deviceId;
     var pin = parseInt(req.params.pin);
-    var cmd = [0x02 << 6 | pin << 1 | 1];
-
-    gpio.send(host, cmd, function (data) {
-	res.end(data);
-    });
+    var cmd = "W " + pin + " 1";
+	
+	var deviceIp = deviceInfos[deviceId];
+	var deviceSocket = device_connections[deviceIp];
+	
+	deviceSocket.write(cmd);
+	res.end();
 });
 
-app.post('/:host/gpio/:pin/pulse', function(req, res) {
-    var host = req.params.host;
-    var pin = parseInt(req.params.pin);
-    var cmd_on = [0x02 << 6 | pin << 1 | 0];
-    var cmd_off = [0x02 << 6 | pin << 1 | 1];
-
-    gpio.send(host, cmd_on, function(data) {
-	setTimeout(function() {
-		gpio.send(cmd_off, function(data, error) {
-		    res.end();
-	        });
-
-	}, 500);
-    });
+app.get('/devices', function(req, res) {
+	res.end(device_infos);
 });
 
-var server = app.listen(8080, function(){
+var http_server = app.listen(8080, function(){
     console.log("Started listening");			
 });
+
+var device_connections = {};
+var device_infos = {};
+
+var socket_server = net.createServer((socket) =>
+{
+	socket.on('data', (data) =>
+	{
+		//When the device first connects, it should send an object describing itself. name/type
+		if (device_connections[socket.remoteAddress] == undefined)
+		{
+			var device_info = JSON.parse(data);
+			var deviceId = uuid.v4();
+			device_connections[socket.remoteAddress] = {socket:socket, deviceId:deviceId};
+			device_infos[deviceId] = {deviceId:deviceId, ip:socket.remoteAddress, type:device_info.type, name:device_info.name};	
+		}
+	});
+	
+	socket.on('end', () =>
+	{
+		//I don't know if this will work, because remoteAddress is supposed to be undefined when the client disconnects
+		var device = connected_devices[socket.remoteAddress];
+		connected_devices[socket.remoteAddress] = undefined;
+		device_infos[device.deviceId] = undefined;
+		
+	})
+});
+
+socket_server.listen(8081, () => console.log("Server Started"));
+
+

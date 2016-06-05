@@ -1,7 +1,7 @@
 var net = require('net');
 var fs = require('fs');
 
-var hosts = JSON.parse(fs.readFileSync("hosts.json", "utf8"));
+/*var hosts = JSON.parse(fs.readFileSync("hosts.json", "utf8"));
 function extractHostConfig(name)
 {
     for each (var host in hosts)
@@ -37,7 +37,7 @@ function tcp(host)
 function udp(host)
 {
 }
-
+*/
 function send(name, commands, completion)
 {		
     var config = extractHostConfig(name);

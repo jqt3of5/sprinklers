@@ -4,6 +4,7 @@
 #include "http.h"
 
 const char * DEVICE_TYPE = "relay";
+const char * DEVICE_NAME = "casbah";
 const byte CURRENT_VERSION = 0;
 const int EEPROM_VERSION = 0;
 const int EEPROM_HOST_ADDR = 1;
@@ -54,7 +55,7 @@ void setup()
       else
       {
         //Tell the cloud what type of device this is
-        client.println(DEVICE_TYPE);
+        client.printf("{\"type\":\"%s\", \"name\":\"%s\"}",DEVICE_TYPE, DEVICE_NAME);
         _connected = true;
       }
   }
@@ -65,7 +66,7 @@ char * processData(char * data, int count)
   char cmd = data[0];
   char * temp;
   char pin = 0;
-  char * result = new char[9]();
+  char * result = 0;
   Schedule schedule;
   switch (cmd)
       {
@@ -76,10 +77,12 @@ char * processData(char * data, int count)
         break;
 
         case 'R':
-        for (int j = 0; j < 8; ++j)
-        {
-          result[j] = digitalRead(j) == HIGH ? '1' : '0';
-        }
+        strtok(data, " ");
+        temp = strtok(nullptr, " ");
+        pin = atoi(temp);
+
+        result = new char[2]();
+        result[0] = digitalRead(0) == HIGH ? '1' : '0';
         break;
 
         case 'W':
@@ -99,7 +102,6 @@ void loop()
 {
   if (client.connected())
   {
-    //client.printf("%d.%d.%d.%d", addr[0], addr[1],addr[2],addr[3]);
     int total = client.available();
     if (total)
     {
