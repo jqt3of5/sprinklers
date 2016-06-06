@@ -222,6 +222,11 @@ function queryDevice(cmd, deviceId, onComplete)
 	deviceSocket.write(cmd);	
 }
 
+app.configure(function ()
+{
+	app.use(express.bodyParser());	
+});
+
 var http_server = app.listen(8080, function(){
     console.log("Started listening");			
 });
