@@ -17,6 +17,13 @@ var net = require('net');
 var gpio = require('./gpio');
 var uuid = require('node-uuid');
 
+DeviceTypeEnum ={
+	Garage : "garage",
+	Temp : "temp",
+	Relay : "relay"
+};
+
+
 app.use(express.static('public'));
 
 //Get the value of a pin. 
@@ -31,13 +38,9 @@ app.get('/:deviceId/:pin', function(req, res) {
 	}
 	else
 	{
-		var deviceSocket = device_infos[deviceId].socket;
-		//While I really really like this idea, I'm worried data will be lost
-		deviceSocket.once('data', function (data) {
+		queryDevice(cmd, res, function (data) {
 			res.end(data);
-			deviceSocket.removeListener('data', dataHandler);
-		});
-		deviceSocket.write(cmd);	
+		});	
 	}
 });
 
@@ -53,10 +56,9 @@ app.post('/:deviceId/:pin', function(req, res) {
 	}
 	else
 	{
-		var deviceSocket = device_infos[deviceId].socket;
-	
-		deviceSocket.write(cmd);
-		res.end();
+		queryDevice(cmd, res, function (data) {
+			res.end(data);
+		});	
 	}
 });
 
@@ -69,20 +71,15 @@ app.get ('/:deviceId/schedule', function(req, res){
     	{
     		res.status(404).end();
     	}
-    	else if (device_infos[deviceId].type != "relay")
+    	else if (device_infos[deviceId].type != DeviceTypeEnum.Relay)
     	{
     		res.status(405).end();	
     	}
     	else 
 	{
-		var deviceSocket = device_infos[deviceId].socket;
-		
-		//While I really really like this idea, I'm worried data will be lost
-		deviceSocket.once('data', function (data) {
+		queryDevice(cmd, res, function (data) {
 			res.end(data);
-			deviceSocket.removeListener('data', dataHandler);
-		});
-		deviceSocket.write(cmd);
+		});	
 	}
 });
 app.post('/:deviceId/schedule', function(req, res){
@@ -94,16 +91,15 @@ app.post('/:deviceId/schedule', function(req, res){
     	{
     		res.status(404).end();
     	}
-    	else if (device_infos[deviceId].type != "relay")
+    	else if (device_infos[deviceId].type != DeviceTypeEnum.Relay)
     	{
     		res.status(405).end();	
     	}
     	else 
 	{
-		var deviceSocket = device_infos[deviceId].socket;
-	
-		deviceSocket.write(cmd);
-		res.end();
+		queryDevice(cmd, res, function (data) {
+			res.end(data);
+		});
 	}
 });
 
@@ -116,19 +112,15 @@ app.get('/:deviceId/temp/:probe', function(req, res) {
 	{
 		res.status(404).end();
 	}
-	else if (device_infos[deviceId].type != "temp")
+	else if (device_infos[deviceId].type != DeviceTypeEnum.Temp)
 	{
 		res.status(405).end();
 	} 
 	else 
 	{
-		var deviceSocket = device_infos[deviceId].socket;
-		//While I really really like this idea, I'm worried data will be lost
-		deviceSocket.once('data', function (data) {
+	queryDevice(cmd, res, function (data) {
 			res.end(data);
-			deviceSocket.removeListener('data', dataHandler);
-		});
-		deviceSocket.write(cmd);	
+		});		
 	}
 });
 
@@ -141,19 +133,15 @@ app.get('/:deviceId/garage/door', function(req, res) {
 	{
 		res.status(404).end();
 	}
-	else if (device_infos[deviceId].type != "garage")
+	else if (device_infos[deviceId].type != DeviceTypeEnum.Garage)
 	{
 		res.status(405).end();
 	} 
 	else
 	{
-		var deviceSocket = device_infos[deviceId].socket;
-		//While I really really like this idea, I'm worried data will be lost
-		deviceSocket.once('data', function (data) {
+	queryDevice(cmd, res, function (data) {
 			res.end(data);
-			deviceSocket.removeListener('data', dataHandler);
-		});
-		deviceSocket.write(cmd);		
+		});		
 	}
 });
 
@@ -166,20 +154,15 @@ app.get('/:deviceId/garage/light', function(req, res) {
 	{
 		res.status(404).end();
 	}
-	else if (device_infos[deviceId].type != "garage")
+	else if (device_infos[deviceId].type != DeviceTypeEnum.Garage)
 	{
 		res.status(405).end();
 	} 
 	else
 	{
-		var deviceSocket = device_infos[deviceId].socket;
-		//While I really really like this idea, I'm worried data will be lost
-		deviceSocket.once('data', function (data) {
+		queryDevice(cmd, res, function (data) {
 			res.end(data);
-			deviceSocket.removeListener('data', dataHandler);
-		});
-		
-		deviceSocket.write(cmd);		
+		});	
 	}
 });
 
@@ -192,15 +175,15 @@ app.post('/:deviceId/garage/light', function(req, res) {
 	{
 		res.status(404).end();
 	}
-	else if (device_infos[deviceId].type != "garage")
+	else if (device_infos[deviceId].type != DeviceTypeEnum.Garage)
 	{
 		res.status(405).end();
 	} 
 	else
 	{
-		var deviceSocket = device_infos[deviceId].socket;
-		deviceSocket.write(cmd);
-		res.end();
+		queryDevice(cmd, res, function (data) {
+			res.end(data);
+		});	
 	}
 });
 
@@ -213,21 +196,31 @@ app.post('/:deviceId/garage/door', function(req, res) {
 	{
 		res.status(404).end();
 	}
-	else if (device_infos[deviceId].type != "garage")
+	else if (device_infos[deviceId].type != DeviceTypeEnum.Garage)
 	{
 		res.status(405).end();
 	} 
 	else
 	{
-		var deviceSocket = device_infos[deviceId].socket;
-		deviceSocket.write(cmd);
-		res.end();
+		queryDevice(cmd, res, function (data) {
+			res.end(data);
+		});
 	}
 });
 
 app.get('/devices', function(req, res) {
 	res.end(JSON.stringify(device_infos));
 });
+
+function queryDevice(cmd, deviceId, onComplete)
+{
+	var deviceSocket = device_infos[deviceId].socket;
+	//While I really really like this idea, I'm worried data will be lost
+	deviceSocket.once('data', function (data) {
+		onComplete(data);
+	});
+	deviceSocket.write(cmd);	
+}
 
 var http_server = app.listen(8080, function(){
     console.log("Started listening");			
