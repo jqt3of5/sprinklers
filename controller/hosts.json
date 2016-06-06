@@ -1,2 +1,0 @@
-{[{"name":"rpi", "type": "unix", "path":"/tmp/gpio.sock", "pins":[2,3,4,5,6,7,8,9], "services":["gpio"] },
-  {"name":"photon1", "type":"tcp", "address":"192.168.1.100", "port":8080, "pins":[], "services":[]} ]}
