@@ -4,12 +4,10 @@
 /// Description:
 ///  A RESTful server meant to act as a reverse proxy for the UNIX/INET socket GPIO service.
 /// TODO:
-///    1. Test the rudementary features(success)
-///    2. Create a way for it to act as a multicast proxy - so it can connect to multiple GPIO services
-////      on different RaspberryPis. Have to keep a record of available pis.
+///    1. Test the rudementary features
 ///    3. Create a "checkout" system. Where a user can checkout certain gpio pins, so that no other user
 ///       can interfere with another.
-///    4. 
+///    4. Added Security
 ///=============================================================================================================
 
 var express = require('express');
