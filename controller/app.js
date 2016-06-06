@@ -34,12 +34,11 @@ app.get('/:deviceId/:pin', function(req, res) {
 	else
 	{
 		var deviceSocket = device_infos[deviceId].socket;
-		var dataHandler = function (data) {
+		//While I really really like this idea, I'm worried data will be lost
+		deviceSocket.once('data', function (data) {
 			res.end(data);
 			deviceSocket.removeListener('data', dataHandler);
-		};
-		
-		deviceSocket.on('data', dataHandler);
+		});
 		deviceSocket.write(cmd);	
 	}
 });
@@ -63,10 +62,35 @@ app.post('/:deviceId/:pin', function(req, res) {
 	}
 });
 
+app.get ('/:deviceId/schedule', function(req, res){
+	var deviceId = req.params.deviceId;
+    	var pin = parseInt(req.params.pin);
+    	var cmd = "S R";
+    	
+    	if (device_infos[deviceId] == undefined)
+    	{
+    		res.status(404).end();
+    	}
+    	else if (device_infos[deviceId].type != "relay")
+    	{
+    		res.status(405).end();	
+    	}
+    	else 
+	{
+		var deviceSocket = device_infos[deviceId].socket;
+		
+		//While I really really like this idea, I'm worried data will be lost
+		deviceSocket.once('data', function (data) {
+			res.end(data);
+			deviceSocket.removeListener('data', dataHandler);
+		});
+		deviceSocket.write(cmd);
+	}
+});
 app.post('/:deviceId/schedule', function(req, res){
 	var deviceId = req.params.deviceId;
     	var pin = parseInt(req.params.pin);
-    	var cmd = "S" + req.body;
+    	var cmd = "S W" + req.body;
     	
     	if (device_infos[deviceId] == undefined)
     	{
@@ -101,12 +125,11 @@ app.get('/:deviceId/temp/:probe', function(req, res) {
 	else 
 	{
 		var deviceSocket = device_infos[deviceId].socket;
-		var dataHandler = function (data) {
+		//While I really really like this idea, I'm worried data will be lost
+		deviceSocket.once('data', function (data) {
 			res.end(data);
 			deviceSocket.removeListener('data', dataHandler);
-		};
-		
-		deviceSocket.on('data', dataHandler);
+		});
 		deviceSocket.write(cmd);	
 	}
 });
@@ -127,12 +150,11 @@ app.get('/:deviceId/garage/door', function(req, res) {
 	else
 	{
 		var deviceSocket = device_infos[deviceId].socket;
-		var dataHandler = function (data) {
+		//While I really really like this idea, I'm worried data will be lost
+		deviceSocket.once('data', function (data) {
 			res.end(data);
 			deviceSocket.removeListener('data', dataHandler);
-		};
-		
-		deviceSocket.on('data', dataHandler);
+		});
 		deviceSocket.write(cmd);		
 	}
 });
@@ -153,12 +175,12 @@ app.get('/:deviceId/garage/light', function(req, res) {
 	else
 	{
 		var deviceSocket = device_infos[deviceId].socket;
-		var dataHandler = function (data) {
+		//While I really really like this idea, I'm worried data will be lost
+		deviceSocket.once('data', function (data) {
 			res.end(data);
 			deviceSocket.removeListener('data', dataHandler);
-		};
+		});
 		
-		deviceSocket.on('data', dataHandler);
 		deviceSocket.write(cmd);		
 	}
 });
@@ -216,7 +238,7 @@ var http_server = app.listen(8080, function(){
 var device_infos = {};
 var socket_server = net.createServer(function (socket)
 {
-	function configDevice(data)
+	socket.once('data', function (data)
 	{
 		var device_info = JSON.parse(data);
 		//When the device first connects, it should send an object describing itself. name/type
@@ -224,8 +246,7 @@ var socket_server = net.createServer(function (socket)
 		device_infos[device_info.deviceId] = {socket:socket, type:device_info.type};	
 		
 		socket.removeListener('data', configDevice);
-	}
-	socket.on('data', configDevice);
+	});
 	
 	socket.on('close', function ()
 	{
