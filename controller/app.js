@@ -23,6 +23,14 @@ DeviceTypeEnum ={
 	Relay : "relay"
 };
 
+var endpoints = [{url:"/:deviceId/:pin", method:"GET", command:"R :pin", allowedDevices:[]},
+		 {url:"/:deviceId/:pin", method:"POST", command:"W :pin :body", allowedDevices:[]},
+		 {url:"/:deviceId/schedule", method:"GET", command:"S R", allowedDevices:[DeviceTypeEnum.Relay]},
+		 {url:"/:deviceId/schedule", method:"POST", command:"S W:body", allowedDevices:[DeviceTypeEnum.Relay]},
+		 {url:"/:deviceId/temp/:probe", method:"GET", command:"T :probe", allowedDevices:[DeviceTypeEnum.Temp]},
+		 {url:"/:deviceId/garage/door", method:"GET", command:"D S", allowedDevices:[DeviceTypeEnum.Garage]},
+];
+
 
 app.use(express.static('public'));
 
