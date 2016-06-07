@@ -4,12 +4,10 @@
 /// Description:
 ///  A RESTful server meant to act as a reverse proxy for the UNIX/INET socket GPIO service.
 /// TODO:
-///    1. Test the rudementary features(success)
-///    2. Create a way for it to act as a multicast proxy - so it can connect to multiple GPIO services
-////      on different RaspberryPis. Have to keep a record of available pis.
+///    1. Test the rudementary features
 ///    3. Create a "checkout" system. Where a user can checkout certain gpio pins, so that no other user
 ///       can interfere with another.
-///    4. 
+///    4. Added Security
 ///=============================================================================================================
 
 var express = require('express');
@@ -19,98 +17,237 @@ var net = require('net');
 var gpio = require('./gpio');
 var uuid = require('node-uuid');
 
+DeviceTypeEnum ={
+	Garage : "garage",
+	Temp : "temp",
+	Relay : "relay"
+};
+
+
 app.use(express.static('public'));
 
-//Allocate a new pin
-/*app.put('/:host/gpio/:pin', function (req, res) {
-    var host = req.params.host;
-    var pin = parseInt(req.params.pin);
-    var cmd = [0x00 << 6 | pin << 1 | 0];
-
-    gpio.send(host, cmd, function(data, error){
-        res.end();
-    });
-});
-
-//unallocate a pin
-app.delete('/:host/gpio/:pin', function(req, res) {
-    res.end();
-});
-*/
 //Get the value of a pin. 
-app.get('/:deviceId/gpio/:pin', function(req, res) {
+app.get('/:deviceId/:pin', function(req, res) {
 	var deviceId = req.params.deviceId;
 	var pin = parseInt(req.params.pin);
 	var cmd = "R " + pin;
 	
-	var deviceIp = device_infos[deviceId].ip;
-	var deviceSocket = device_connections[deviceIp].socket;
-	
-	deviceSocket.on('data', function (data) {
-		//var state = JSON.parse(data);
-		res.end(data);
-	});
-	deviceSocket.write(cmd);
+	if (device_infos[deviceId] == undefined)
+	{
+		res.status(404).end();
+	}
+	else
+	{
+		queryDevice(cmd, res, function (data) {
+			res.end(data);
+		});	
+	}
 });
 
-//Set the value of a pin to low
-app.post('/:deviceId/gpio/:pin/clr', function(req, res) {
+//Set the value of a pin
+app.post('/:deviceId/:pin', function(req, res) {
 	var deviceId = req.params.deviceId;
-    var pin = parseInt(req.params.pin);
-    var cmd = "W " + pin + " 0";
-	
-	var deviceIp = device_infos[deviceId].ip;
-	var deviceSocket = device_connections[deviceIp].socket;
-	
-	deviceSocket.write(cmd);
-	res.end();
+    	var pin = parseInt(req.params.pin);
+    	var cmd = "W " + pin + " " + req.body;
+    	
+	if (device_infos[deviceId] == undefined)
+	{
+		res.status(404).end();	
+	}
+	else
+	{
+		queryDevice(cmd, res, function (data) {
+			res.end(data);
+		});	
+	}
 });
 
-//set the value of a pin to high
-app.post('/:deviceId/gpio/:pin/set', function(req, res) {
-    var deviceId = req.params.deviceId;
-    var pin = parseInt(req.params.pin);
-    var cmd = "W " + pin + " 1";
+app.get ('/:deviceId/schedule', function(req, res){
+	var deviceId = req.params.deviceId;
+    	var pin = parseInt(req.params.pin);
+    	var cmd = "S R";
+    	
+    	if (device_infos[deviceId] == undefined)
+    	{
+    		res.status(404).end();
+    	}
+    	else if (device_infos[deviceId].type != DeviceTypeEnum.Relay)
+    	{
+    		res.status(405).end();	
+    	}
+    	else 
+	{
+		queryDevice(cmd, res, function (data) {
+			res.end(data);
+		});	
+	}
+});
+app.post('/:deviceId/schedule', function(req, res){
+	var deviceId = req.params.deviceId;
+    	var pin = parseInt(req.params.pin);
+    	var cmd = "S W" + req.body;
+    	
+    	if (device_infos[deviceId] == undefined)
+    	{
+    		res.status(404).end();
+    	}
+    	else if (device_infos[deviceId].type != DeviceTypeEnum.Relay)
+    	{
+    		res.status(405).end();	
+    	}
+    	else 
+	{
+		queryDevice(cmd, res, function (data) {
+			res.end(data);
+		});
+	}
+});
+
+app.get('/:deviceId/temp/:probe', function(req, res) {
+	var deviceId = req.params.deviceId;
+	var probe = parseInt(req.params.probe);
+	var cmd = "T " + probe;
 	
-	var deviceIp = device_infos[deviceId].ip;
-	var deviceSocket = device_connections[deviceIp].socket;
+	if (device_infos[deviceId] == undefined)
+	{
+		res.status(404).end();
+	}
+	else if (device_infos[deviceId].type != DeviceTypeEnum.Temp)
+	{
+		res.status(405).end();
+	} 
+	else 
+	{
+	queryDevice(cmd, res, function (data) {
+			res.end(data);
+		});		
+	}
+});
+
+app.get('/:deviceId/garage/door', function(req, res) {
+	var deviceId = req.params.deviceId;
+	//door, state
+	var cmd = "D S";
 	
-	deviceSocket.write(cmd);
-	res.end();
+	if (device_infos[deviceId] == undefined)
+	{
+		res.status(404).end();
+	}
+	else if (device_infos[deviceId].type != DeviceTypeEnum.Garage)
+	{
+		res.status(405).end();
+	} 
+	else
+	{
+	queryDevice(cmd, res, function (data) {
+			res.end(data);
+		});		
+	}
+});
+
+app.get('/:deviceId/garage/light', function(req, res) {
+	var deviceId = req.params.deviceId;
+	//Light, State
+	var cmd = "L S";
+	
+	if (device_infos[deviceId] == undefined)
+	{
+		res.status(404).end();
+	}
+	else if (device_infos[deviceId].type != DeviceTypeEnum.Garage)
+	{
+		res.status(405).end();
+	} 
+	else
+	{
+		queryDevice(cmd, res, function (data) {
+			res.end(data);
+		});	
+	}
+});
+
+app.post('/:deviceId/garage/light', function(req, res) {
+	var deviceId = req.params.deviceId;
+	//Light, Toggle
+	var cmd = "L T";
+	
+	if (device_infos[deviceId] == undefined)
+	{
+		res.status(404).end();
+	}
+	else if (device_infos[deviceId].type != DeviceTypeEnum.Garage)
+	{
+		res.status(405).end();
+	} 
+	else
+	{
+		queryDevice(cmd, res, function (data) {
+			res.end(data);
+		});	
+	}
+});
+
+app.post('/:deviceId/garage/door', function(req, res) {
+	var deviceId = req.params.deviceId;
+	//Door, Toggle
+	var cmd = "D T";
+	
+	if (device_infos[deviceId] == undefined)
+	{
+		res.status(404).end();
+	}
+	else if (device_infos[deviceId].type != DeviceTypeEnum.Garage)
+	{
+		res.status(405).end();
+	} 
+	else
+	{
+		queryDevice(cmd, res, function (data) {
+			res.end(data);
+		});
+	}
 });
 
 app.get('/devices', function(req, res) {
 	res.end(JSON.stringify(device_infos));
 });
 
+function queryDevice(cmd, deviceId, onComplete)
+{
+	var deviceSocket = device_infos[deviceId].socket;
+	//While I really really like this idea, I'm worried data will be lost
+	deviceSocket.once('data', function (data) {
+		onComplete(data);
+	});
+	deviceSocket.write(cmd);	
+}
+
+app.configure(function ()
+{
+	app.use(express.bodyParser());	
+});
+
 var http_server = app.listen(8080, function(){
     console.log("Started listening");			
 });
 
-var device_connections = {};
 var device_infos = {};
-
 var socket_server = net.createServer(function (socket)
 {
-	socket.on('data', function (data)
+	socket.once('data', function (data)
 	{
+		var device_info = JSON.parse(data);
 		//When the device first connects, it should send an object describing itself. name/type
-		if (device_connections[socket.remoteAddress] == undefined)
-		{
-			var device_info = JSON.parse(data);
-			device_connections[socket.remoteAddress] = {socket:socket, deviceId:device_info.deviceId};
-			device_infos[device_info.deviceId] = {ip:socket.remoteAddress, type:device_info.type};	
-		}
+		socked.deviceId = device_info.deviceId;
+		device_infos[device_info.deviceId] = {socket:socket, type:device_info.type};	
+		
+		socket.removeListener('data', configDevice);
 	});
 	
-	socket.on('end', function ()
+	socket.on('close', function ()
 	{
-		//I don't know if this will work, because remoteAddress is supposed to be undefined when the client disconnects
-		//var device = connected_devices[socket.remoteAddress];
-		//connected_devices[socket.remoteAddress] = undefined;
-		//device_infos[device.deviceId] = undefined;
-		
-	})
+		device_infos[socket.deviceId] = undefined;
+	});
 });
 
 socket_server.listen(8081, function(){ console.log("Server Started")});
