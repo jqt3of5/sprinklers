@@ -60,6 +60,10 @@ function handleHttpRequest(endpoint, req, res)
 	}
 	else if (endpoint.allowedDevices.length > 0 && endpoint.allowedDevices.indexOf(device_infos[deviceId].type) == -1)
 	{
+		res.status(405).end();
+	}
+	else
+	{
 		var deviceSocket = device_sockets[deviceId];
 		//While I really really like this idea, I'm worried data will be lost
 		deviceSocket.once('data', function (data) {
