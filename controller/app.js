@@ -64,7 +64,7 @@ function handleHttpRequest(endpoint, req, res)
     	}
 	else
 	{
-		var deviceSocket = device_infos[deviceId].socket;
+		var deviceSocket = device_sockets[deviceId];
 		//While I really really like this idea, I'm worried data will be lost
 		deviceSocket.once('data', function (data) {
 			res.end(data);
@@ -82,6 +82,7 @@ var http_server = app.listen(8080, function(){
 });
 
 var device_infos = {};
+var device_sockets = {};
 var socket_server = net.createServer(function (socket)
 {
 	socket.once('data', function (data)
@@ -89,8 +90,8 @@ var socket_server = net.createServer(function (socket)
 		var device_info = JSON.parse(data);
 		//When the device first connects, it should send an object describing itself. name/type
 		socket.deviceId = device_info.deviceId;
-		device_infos[device_info.deviceId] = {socket:socket, type:device_info.type};
-		console.log(device_infos);
+		device_infos[device_info.deviceId] = {type:device_info.type, deviceId:device_info.deviceId};
+		device_sockets[device_info.deviceId] = socket;
 	});
 	
 	socket.on('close', function ()
