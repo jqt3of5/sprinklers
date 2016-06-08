@@ -22,15 +22,15 @@ DeviceTypeEnum ={
 	Relay : "relay"
 };
 
-var endpoints = [{url:"/:deviceId/:pin",         method:"GET",  allowedDevices:[], createCommand:function(req) {"R " + req.params.pin} },
-		 {url:"/:deviceId/:pin/:value",  method:"POST", allowedDevices:[], createCommand:function(req) {"W " + req.params.pin + " " + req.params.value} },
-		 {url:"/:deviceId/schedule",     method:"GET",  allowedDevices:[DeviceTypeEnum.Relay],  createCommand:function(req) {"S R"}},
-		 {url:"/:deviceId/schedule",     method:"POST", allowedDevices:[DeviceTypeEnum.Relay],  createCommand:function(req) {"S W" + req.params.body}, },
-		 {url:"/:deviceId/temp/:probe",  method:"GET",  allowedDevices:[DeviceTypeEnum.Temp],   createCommand:function(req) {"T " + req.params.probe}, },
-		 {url:"/:deviceId/garage/door",  method:"GET",  allowedDevices:[DeviceTypeEnum.Garage], createCommand:function(req) {"D S"}, },
-		 {url:"/:deviceId/garage/light", method:"GET",  allowedDevices:[DeviceTypeEnum.Garage], createCommand:function(req) {"L S"}, },
-		 {url:"/:deviceId/garage/door",  method:"POST", allowedDevices:[DeviceTypeEnum.Garage], createCommand:function(req) {"D T"}, },
-		 {url:"/:deviceId/garage/light", method:"POST", allowedDevices:[DeviceTypeEnum.Garage], createCommand:function(req) {"L T"}, },
+var endpoints = [{url:"/:deviceId/:pin",         method:"GET",  allowedDevices:[], createCommand:function(req) {return "R " + req.params.pin} },
+		 {url:"/:deviceId/:pin/:value",  method:"POST", allowedDevices:[], createCommand:function(req) {return "W " + req.params.pin + " " + req.params.value} },
+		 {url:"/:deviceId/schedule",     method:"GET",  allowedDevices:[DeviceTypeEnum.Relay],  createCommand:function(req) {return "S R"}},
+		 {url:"/:deviceId/schedule",     method:"POST", allowedDevices:[DeviceTypeEnum.Relay],  createCommand:function(req) {return "S W" + req.params.body}, },
+		 {url:"/:deviceId/temp/:probe",  method:"GET",  allowedDevices:[DeviceTypeEnum.Temp],   createCommand:function(req) {return "T " + req.params.probe}, },
+		 {url:"/:deviceId/garage/door",  method:"GET",  allowedDevices:[DeviceTypeEnum.Garage], createCommand:function(req) {return "D S"}, },
+		 {url:"/:deviceId/garage/light", method:"GET",  allowedDevices:[DeviceTypeEnum.Garage], createCommand:function(req) {return "L S"}, },
+		 {url:"/:deviceId/garage/door",  method:"POST", allowedDevices:[DeviceTypeEnum.Garage], createCommand:function(req) {return "D T"}, },
+		 {url:"/:deviceId/garage/light", method:"POST", allowedDevices:[DeviceTypeEnum.Garage], createCommand:function(req) {return "L T"}, },
 ];
 
 app.use(express.static('public'));
