@@ -14,7 +14,6 @@ var express = require('express');
 var app = express();
 var fs = require('fs');
 var net = require('net');
-var gpio = require('./gpio');
 var uuid = require('node-uuid');
 
 DeviceTypeEnum ={
