@@ -39,7 +39,7 @@ app.get('/devices', function(req, res) {
 	res.end(JSON.stringify(device_infos));
 });
 
-for (var i = 0; i < endpoints.count; ++i)
+for (var i = 0; i < endpoints.length; ++i)
 {
 	if (endpoints[i].method == "GET")
 	{
