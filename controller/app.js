@@ -58,7 +58,7 @@ function handleHttpRequest(endpoint, req, res)
 	{
 		res.status(404).end();
 	}
-	else if (endpoint.allowedDevices.count > 0 && !endpoint.alloweDevices.contains(device_infos[deviceId].type))
+	else if (endpoint.allowedDevices.length > 0 && !endpoint.allowedDevices.contains(device_infos[deviceId].type))
     	{
     		res.status(405).end();	
     	}
