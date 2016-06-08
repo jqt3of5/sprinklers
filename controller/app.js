@@ -90,8 +90,6 @@ var socket_server = net.createServer(function (socket)
 		//When the device first connects, it should send an object describing itself. name/type
 		socket.deviceId = device_info.deviceId;
 		device_infos[device_info.deviceId] = {socket:socket, type:device_info.type};	
-		
-		socket.removeListener('data', configDevice);
 	});
 	
 	socket.on('close', function ()
