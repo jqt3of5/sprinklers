@@ -3,7 +3,7 @@
 #include <softap_http.h>
 #include "http.h"
 //#include "IDevice.h"
-#include "Relay.h"
+#include "Garage.h"
 
 const char * DEVICE_ID = "996903cc-f22a-4c03-94b1-fd050d942ef2";
 const byte CURRENT_VERSION = 0;
@@ -19,7 +19,7 @@ bool _connected = false;
 TCPClient client;
 void setup()
 {
-  _device = new Relay();
+  _device = new Garage();
   _device->ConfigPins();
 
   byte version;
