@@ -88,7 +88,7 @@ var socket_server = net.createServer(function (socket)
 	{
 		var device_info = JSON.parse(data);
 		//When the device first connects, it should send an object describing itself. name/type
-		socked.deviceId = device_info.deviceId;
+		socket.deviceId = device_info.deviceId;
 		device_infos[device_info.deviceId] = {socket:socket, type:device_info.type};	
 		
 		socket.removeListener('data', configDevice);
