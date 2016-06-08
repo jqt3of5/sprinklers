@@ -43,11 +43,11 @@ for (var i = 0; i < endpoints.length; ++i)
 {
 	if (endpoints[i].method == "GET")
 	{
-		app.get(endpoints[i].url,function (j) {function(req, res) { handleHttpRequest(endpoints[j], req, res)}}(i) );
+		app.get(endpoints[i].url,function (j) { return function(req, res) { handleHttpRequest(endpoints[j], req, res)}}(i) );
 	}
 	else if (endpoints[i].method == "POST")
 	{
-		app.post(endpoints[i].url, function (j) {function(req, res) { handleHttpRequest(endpoints[j], req, res)}}(i) );
+		app.post(endpoints[i].url, function (j) {return function(req, res) { handleHttpRequest(endpoints[j], req, res)}}(i) );
 	}
 }
 
