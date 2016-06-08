@@ -39,11 +39,6 @@ app.get('/devices', function(req, res) {
 	res.end(JSON.stringify(device_infos));
 });
 
-app.configure(function ()
-{
-	app.use(express.bodyParser());	
-});
-
 for (var i = 0; i < endpoints.count; ++i)
 {
 	if (endpoints[i].method == "GET")
