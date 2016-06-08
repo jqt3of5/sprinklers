@@ -45,7 +45,7 @@ app.configure(function ()
 	app.use(express.bodyParser());	
 });
 
-for (int i = 0; i < endpoints.count; ++i)
+for (var i = 0; i < endpoints.count; ++i)
 {
 	if (endpoints[i].method == "GET")
 	{
