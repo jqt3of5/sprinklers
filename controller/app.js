@@ -14,7 +14,6 @@ var express = require('express');
 var app = express();
 var fs = require('fs');
 var net = require('net');
-var gpio = require('./gpio');
 var uuid = require('node-uuid');
 
 DeviceTypeEnum ={
@@ -23,225 +22,76 @@ DeviceTypeEnum ={
 	Relay : "relay"
 };
 
+var endpoints = [{url:"/:deviceId/:pin",         method:"GET",  allowedDevices:[], createCommand:function(req) {return "R " + req.params.pin} },
+		 {url:"/:deviceId/:pin/:value",  method:"POST", allowedDevices:[], createCommand:function(req) {return "W " + req.params.pin + " " + req.params.value} },
+		 {url:"/:deviceId/schedule",     method:"GET",  allowedDevices:[DeviceTypeEnum.Relay],  createCommand:function(req) {return "S R"}},
+		 {url:"/:deviceId/schedule",     method:"POST", allowedDevices:[DeviceTypeEnum.Relay],  createCommand:function(req) {return "S W" + req.params.body}, },
+		 {url:"/:deviceId/temp/:probe",  method:"GET",  allowedDevices:[DeviceTypeEnum.Temp],   createCommand:function(req) {return "T " + req.params.probe}, },
+		 {url:"/:deviceId/garage/door",  method:"GET",  allowedDevices:[DeviceTypeEnum.Garage], createCommand:function(req) {return "D S"}, },
+		 {url:"/:deviceId/garage/light", method:"GET",  allowedDevices:[DeviceTypeEnum.Garage], createCommand:function(req) {return "L S"}, },
+		 {url:"/:deviceId/garage/door",  method:"POST", allowedDevices:[DeviceTypeEnum.Garage], createCommand:function(req) {return "D T"}, },
+		 {url:"/:deviceId/garage/light", method:"POST", allowedDevices:[DeviceTypeEnum.Garage], createCommand:function(req) {return "L T"}, },
+];
 
 app.use(express.static('public'));
-
-//Get the value of a pin. 
-app.get('/:deviceId/:pin', function(req, res) {
-	var deviceId = req.params.deviceId;
-	var pin = parseInt(req.params.pin);
-	var cmd = "R " + pin;
-	
-	if (device_infos[deviceId] == undefined)
-	{
-		res.status(404).end();
-	}
-	else
-	{
-		queryDevice(cmd, res, function (data) {
-			res.end(data);
-		});	
-	}
-});
-
-//Set the value of a pin
-app.post('/:deviceId/:pin', function(req, res) {
-	var deviceId = req.params.deviceId;
-    	var pin = parseInt(req.params.pin);
-    	var cmd = "W " + pin + " " + req.body;
-    	
-	if (device_infos[deviceId] == undefined)
-	{
-		res.status(404).end();	
-	}
-	else
-	{
-		queryDevice(cmd, res, function (data) {
-			res.end(data);
-		});	
-	}
-});
-
-app.get ('/:deviceId/schedule', function(req, res){
-	var deviceId = req.params.deviceId;
-    	var pin = parseInt(req.params.pin);
-    	var cmd = "S R";
-    	
-    	if (device_infos[deviceId] == undefined)
-    	{
-    		res.status(404).end();
-    	}
-    	else if (device_infos[deviceId].type != DeviceTypeEnum.Relay)
-    	{
-    		res.status(405).end();	
-    	}
-    	else 
-	{
-		queryDevice(cmd, res, function (data) {
-			res.end(data);
-		});	
-	}
-});
-app.post('/:deviceId/schedule', function(req, res){
-	var deviceId = req.params.deviceId;
-    	var pin = parseInt(req.params.pin);
-    	var cmd = "S W" + req.body;
-    	
-    	if (device_infos[deviceId] == undefined)
-    	{
-    		res.status(404).end();
-    	}
-    	else if (device_infos[deviceId].type != DeviceTypeEnum.Relay)
-    	{
-    		res.status(405).end();	
-    	}
-    	else 
-	{
-		queryDevice(cmd, res, function (data) {
-			res.end(data);
-		});
-	}
-});
-
-app.get('/:deviceId/temp/:probe', function(req, res) {
-	var deviceId = req.params.deviceId;
-	var probe = parseInt(req.params.probe);
-	var cmd = "T " + probe;
-	
-	if (device_infos[deviceId] == undefined)
-	{
-		res.status(404).end();
-	}
-	else if (device_infos[deviceId].type != DeviceTypeEnum.Temp)
-	{
-		res.status(405).end();
-	} 
-	else 
-	{
-	queryDevice(cmd, res, function (data) {
-			res.end(data);
-		});		
-	}
-});
-
-app.get('/:deviceId/garage/door', function(req, res) {
-	var deviceId = req.params.deviceId;
-	//door, state
-	var cmd = "D S";
-	
-	if (device_infos[deviceId] == undefined)
-	{
-		res.status(404).end();
-	}
-	else if (device_infos[deviceId].type != DeviceTypeEnum.Garage)
-	{
-		res.status(405).end();
-	} 
-	else
-	{
-	queryDevice(cmd, res, function (data) {
-			res.end(data);
-		});		
-	}
-});
-
-app.get('/:deviceId/garage/light', function(req, res) {
-	var deviceId = req.params.deviceId;
-	//Light, State
-	var cmd = "L S";
-	
-	if (device_infos[deviceId] == undefined)
-	{
-		res.status(404).end();
-	}
-	else if (device_infos[deviceId].type != DeviceTypeEnum.Garage)
-	{
-		res.status(405).end();
-	} 
-	else
-	{
-		queryDevice(cmd, res, function (data) {
-			res.end(data);
-		});	
-	}
-});
-
-app.post('/:deviceId/garage/light', function(req, res) {
-	var deviceId = req.params.deviceId;
-	//Light, Toggle
-	var cmd = "L T";
-	
-	if (device_infos[deviceId] == undefined)
-	{
-		res.status(404).end();
-	}
-	else if (device_infos[deviceId].type != DeviceTypeEnum.Garage)
-	{
-		res.status(405).end();
-	} 
-	else
-	{
-		queryDevice(cmd, res, function (data) {
-			res.end(data);
-		});	
-	}
-});
-
-app.post('/:deviceId/garage/door', function(req, res) {
-	var deviceId = req.params.deviceId;
-	//Door, Toggle
-	var cmd = "D T";
-	
-	if (device_infos[deviceId] == undefined)
-	{
-		res.status(404).end();
-	}
-	else if (device_infos[deviceId].type != DeviceTypeEnum.Garage)
-	{
-		res.status(405).end();
-	} 
-	else
-	{
-		queryDevice(cmd, res, function (data) {
-			res.end(data);
-		});
-	}
-});
 
 app.get('/devices', function(req, res) {
 	res.end(JSON.stringify(device_infos));
 });
 
-function queryDevice(cmd, deviceId, onComplete)
+for (var i = 0; i < endpoints.length; ++i)
 {
-	var deviceSocket = device_infos[deviceId].socket;
-	//While I really really like this idea, I'm worried data will be lost
-	deviceSocket.once('data', function (data) {
-		onComplete(data);
-	});
-	deviceSocket.write(cmd);	
+	if (endpoints[i].method == "GET")
+	{
+		app.get(endpoints[i].url,function (j) { return function(req, res) { handleHttpRequest(endpoints[j], req, res)}}(i) );
+	}
+	else if (endpoints[i].method == "POST")
+	{
+		app.post(endpoints[i].url, function (j) {return function(req, res) { handleHttpRequest(endpoints[j], req, res)}}(i) );
+	}
 }
 
-app.configure(function ()
+function handleHttpRequest(endpoint, req, res)
 {
-	app.use(express.bodyParser());	
-});
+	var deviceId = req.params.deviceId;
+	if (device_infos[deviceId] == undefined)
+	{
+		res.status(404).end();
+	}
+	else if (endpoint.allowedDevices.length > 0 && endpoint.allowedDevices.indexOf(device_infos[deviceId].type) == -1)
+	{
+		res.status(405).end();
+	}
+	else
+	{
+		var deviceSocket = device_sockets[deviceId];
+		//While I really really like this idea, I'm worried data will be lost
+		deviceSocket.once('data', function (data) {
+			res.end(data);
+		});
+		
+		var cmd = endpoint.createCommand(req);
+		deviceSocket.write(cmd);	
+	}
+}
+
+
 
 var http_server = app.listen(8080, function(){
     console.log("Started listening");			
 });
 
 var device_infos = {};
+var device_sockets = {};
 var socket_server = net.createServer(function (socket)
 {
 	socket.once('data', function (data)
 	{
 		var device_info = JSON.parse(data);
 		//When the device first connects, it should send an object describing itself. name/type
-		socked.deviceId = device_info.deviceId;
-		device_infos[device_info.deviceId] = {socket:socket, type:device_info.type};	
-		
-		socket.removeListener('data', configDevice);
+		socket.deviceId = device_info.deviceId;
+		device_infos[device_info.deviceId] = {type:device_info.type, deviceId:device_info.deviceId};
+		device_sockets[device_info.deviceId] = socket;
 	});
 	
 	socket.on('close', function ()
