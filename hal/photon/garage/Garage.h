@@ -6,4 +6,12 @@ class Garage : public IDevice
   char * ProcessData(char * data, int count);
 
   char * GetDeviceType();
+  
+private:
+  int _lightTimeoutSeconds;
+  Timer * timer;
+  
+  void MotionSensed();
+  void LightTimedOut();
+  
 };
