@@ -1,17 +1,21 @@
 #include <Particle.h>
 #include "Garage.h"
 
-void turn_off()
+Garage::Garage()
+{
+  _lightTimeoutSeconds = 60;
+  _timer = new Timer(1000 * _lightTimeoutSeconds, LightTimedOut, true);
+}
+
+void Garage::LightTimedOut()
 {
   digitalWrite(D7, LOW);
 }
 
-Timer timer(1000 * 60 * 5, turn_off, true);
-
-void ISR1()
+void Garage::MotionSensed()
 {
   digitalWrite(D7, digitalRead(D2));
-  timer.start();
+  _timer.start();
 }
 
 
@@ -26,7 +30,7 @@ void Garage::ConfigPins()
   pinMode(D1, INPUT); // Close
   //motion
   pinMode(D2, INPUT_PULLDOWN);
-  attachInterrupt(D2, ISR1, RISING);
+  attachInterrupt(D2, MotionSensed, RISING);
 }
 
 
@@ -43,15 +47,22 @@ char * Garage::ProcessData(char * data, int count)
       {
         digitalWrite(D7, 1^digitalRead(D7));
       }
-      else if (subCmd[0] == 'S')
+      else if (subCmd[0] == 'S') //state
       {
           response[0] = digitalRead(D7) == HIGH ? '1' : '0';
       }
+      else if (subCmd[0] == 'O') //Update Light time out
+      {
+        unsigned int timeout = atoi(strtok(nullptr, " "));
+        _timer.changePeriod(1000 * timeout);
+      }
     break;
     case 'D':
-      if (subCmd[0] == 'T') //toggle
+      if (subCmd[0] == 'T') //I know it's a T, but pulse the pin to toggle the garage door 
       {
-        digitalWrite(D6, 1^digitalRead(D6));
+        digitalWrite(D6, HIGH);
+        System.delay(500);
+        digitalWrite(D6, LOW);
       }
       else if (subCmd[0] == 'S')
       {
