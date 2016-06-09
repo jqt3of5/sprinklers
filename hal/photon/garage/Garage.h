@@ -9,7 +9,7 @@ class Garage : public IDevice
   
 private:
   int _lightTimeoutSeconds;
-  Timer * timer;
+  Timer * _timer;
   
   void MotionSensed();
   void LightTimedOut();
