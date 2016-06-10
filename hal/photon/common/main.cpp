@@ -68,8 +68,15 @@ void loop()
       }
       //Process Data
       char * result = _device->ProcessData(data, total);
-      client.println(result);
-      free(result);
+      if (result != nullptr)
+      {
+        client.println(result);  
+        free(result);
+      }
+      else
+      {
+        client.println("OK");
+      }
       free(data);
     }
   }
