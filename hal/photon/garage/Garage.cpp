@@ -47,6 +47,7 @@ char * Garage::ProcessData(char * data, int count)
       if (subCmd[0] == 'T') //toggle
       {
         digitalWrite(D7, 1^digitalRead(D7));
+        response[0] = '0';
       }
       else if (subCmd[0] == 'S') //state
       {

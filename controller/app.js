@@ -68,11 +68,13 @@ function handleHttpRequest(endpoint, req, res)
 		var deviceSocket = device_sockets[deviceId];
 		//While I really really like this idea, I'm worried data will be lost
 		deviceSocket.once('data', function (data) {
+			console.log("Received response from photon")
 			res.end(data);
 		});
 		
 		var cmd = endpoint.createCommand(req);
 		deviceSocket.write(cmd);	
+		console.log("Recieved request")
 	}
 }
 
