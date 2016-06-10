@@ -88,7 +88,8 @@ function toggleGarageClick()
 		{
 		}
 	};
-	xhttp.open("POST", "/:deviceId/garage/door", true);
+	var deviceId = devices["garage"];
+	xhttp.open("POST", "/"+ deviceId+"/garage/door", true);
 	xhttp.send();
 }
 
@@ -100,7 +101,8 @@ function toggleLightClick()
 		{
 		}
 	};
-	xhttp.open("POST", "/:deviceId/garage/light", true);
+	var deviceId = devices["garage"];
+	xhttp.open("POST", "/"+deviceId+"/garage/light", true);
 	xhttp.send();
 }
 
