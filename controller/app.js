@@ -73,8 +73,9 @@ function handleHttpRequest(endpoint, req, res)
 		});
 		
 		var cmd = endpoint.createCommand(req);
+		console.log("Writing command: " + cmd);
 		deviceSocket.write(cmd);	
-		console.log("Recieved request")
+		
 	}
 }
 
