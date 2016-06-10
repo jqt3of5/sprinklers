@@ -2,23 +2,28 @@ var device_buttons = [];
 
 window.onload = function()
 {
-    device_buttons = [document.getElementById("thermometer-button"),document.getElementById("garage-button"), document.getElementById("sprinkler-button")];
+    device_buttons = {"temp":document.getElementById("thermometer-button"), "garage": document.getElementById("garage-button"), "relay": document.getElementById("sprinkler-button")};
     refreshDevices();
     window.setInterval(refreshDevices, 1000);
 }
-
-
-var devices = [];
-
+var devices = {};
 function refreshDevices()
 {
-    //Hit the endpoint
-    //Update the global variable
-    //Update the UI
-    for(var i = 0; i < device_buttons.length; ++i)
-    {
-	device_buttons[i].disabled = true;
-    }
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (xhttp.readyState == 4 && xhttp.status == 200) 
+		{
+			var devs = JSON.parse(xhttp.responseText);
+			for (var deviceId in devs)
+			{
+				var device = devs[deviceId];
+				devices[device.type] = deviceId;
+				device_buttons[device.type].disabled = false;
+			}
+		}
+	};
+	xhttp.open("GET", "/devices", true);
+	xhttp.send();
 }
 
 function refreshTempuratures()
@@ -31,8 +36,24 @@ function refreshTempuratures()
 function refreshGarage()
 {
     //It's possible this device has disconnected, kick back to devices screen
-    
-    //Search through devices for garage device
+    var deviceId = devices["garage"];
+	var doorRequest = new XMLHttpRequest();
+	doorRequest.onreadystatechange = function() {
+		if (doorRequest.readyState == 4 && doorRequest.status == 200) 
+		{
+		}
+	};
+	doorRequest.open("GET", "/" + deviceId + "/garage/door", true);
+	doorRequest.send();
+	
+	var lightRequest = new XMLHttpRequest();
+	lightRequest.onreadystatechange = function() {
+		if (lightRequest.readyState == 4 && lightRequest.status == 200) 
+		{
+		}
+	};
+	lightRequest.open("GET", "/" + deviceId + "/garage/light", true);
+	lightRequest.send();
 }
 
 function tempClick()
@@ -61,10 +82,26 @@ function garageClick()
 
 function toggleGarageClick()
 {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (xhttp.readyState == 4 && xhttp.status == 200) 
+		{
+		}
+	};
+	xhttp.open("POST", "/:deviceId/garage/door", true);
+	xhttp.send();
 }
 
 function toggleLightClick()
 {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (xhttp.readyState == 4 && xhttp.status == 200) 
+		{
+		}
+	};
+	xhttp.open("POST", "/:deviceId/garage/light", true);
+	xhttp.send();
 }
 
 function sprinklerClick()
