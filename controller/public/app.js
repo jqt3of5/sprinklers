@@ -76,7 +76,7 @@ function garageClick()
     list.style.display = "none";
     garage.style.display = "block";
 
-    window.setInterval(refreshGarage, 500);
+   // window.setInterval(refreshGarage, 500);
     refreshGarage();
 }
 
