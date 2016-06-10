@@ -30,8 +30,8 @@ var endpoints = [{url:"/:deviceId/schedule",     method:"GET",  allowedDevices:[
 		 {url:"/:deviceId/garage/light", method:"GET", allowedDevices:[DeviceTypeEnum.Garage], createCommand:function(req) {return "L S"}, },
 		 {url:"/:deviceId/garage/config", method:"POST",  allowedDevices:[DeviceTypeEnum.Garage], createCommand:function(req) {return "L O "+req.body}, },
 		 {url:"/:deviceId/temp/:probe",  method:"GET",  allowedDevices:[DeviceTypeEnum.Temp],   createCommand:function(req) {return "T " + req.params.probe}, },
-		 {url:"/:deviceId/:pin",         method:"GET",  allowedDevices:[], createCommand:function(req) {return "R " + req.params.pin} },
-		 {url:"/:deviceId/:pin/:value",  method:"POST", allowedDevices:[], createCommand:function(req) {return "W " + req.params.pin + " " + req.params.value} },
+		 {url:"/:deviceId/gpio/:pin",         method:"GET",  allowedDevices:[], createCommand:function(req) {return "R " + req.params.pin} },
+		 {url:"/:deviceId/gpio/:pin/:value",  method:"POST", allowedDevices:[], createCommand:function(req) {return "W " + req.params.pin + " " + req.params.value} },
 ];
 
 app.use(express.static('public'));
