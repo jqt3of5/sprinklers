@@ -30,7 +30,7 @@ var endpoints = [{url:"/:deviceId/:pin",         method:"GET",  allowedDevices:[
 		 {url:"/:deviceId/garage/door",  method:"GET",  allowedDevices:[DeviceTypeEnum.Garage], createCommand:function(req) {return "D S"}, },
 		 {url:"/:deviceId/garage/door",  method:"POST", allowedDevices:[DeviceTypeEnum.Garage], createCommand:function(req) {return "D T"}, },
 		 {url:"/:deviceId/garage/light", method:"POST", allowedDevices:[DeviceTypeEnum.Garage], createCommand:function(req) {return "L T"}, },
-		 {url:"/:deviceId/garage/light", method:"POST", allowedDevices:[DeviceTypeEnum.Garage], createCommand:function(req) {return "L S"}, },
+		 {url:"/:deviceId/garage/light", method:"GET", allowedDevices:[DeviceTypeEnum.Garage], createCommand:function(req) {return "L S"}, },
 		 {url:"/:deviceId/garage/config", method:"POST",  allowedDevices:[DeviceTypeEnum.Garage], createCommand:function(req) {return "L O "+req.body}, },
 ];
 
