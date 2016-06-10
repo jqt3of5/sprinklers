@@ -4,56 +4,42 @@ window.onload = function()
 {
     device_buttons = {"temp":document.getElementById("thermometer-button"), "garage": document.getElementById("garage-button"), "relay": document.getElementById("sprinkler-button")};
     refreshDevices();
-    window.setInterval(refreshDevices, 1000);
+    window.setInterval(refreshDevices, 5000);
 }
 var devices = {};
 function refreshDevices()
 {
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (xhttp.readyState == 4 && xhttp.status == 200) 
-		{
-			var devs = JSON.parse(xhttp.responseText);
+	hitEndPoint("GET", "/devices",function(res) {
+			var devs = JSON.parse(res);
 			for (var deviceId in devs)
 			{
 				var device = devs[deviceId];
 				devices[device.type] = deviceId;
 				device_buttons[device.type].disabled = false;
 			}
-		}
-	};
-	xhttp.open("GET", "/devices", true);
-	xhttp.send();
+	});
 }
 
 function refreshTempuratures()
 {
     //It's possible this device has disconnected, kick back to devices screen
-
-    //Search through devices for temp device
+    var deviceId = devices["temp"];
+    hitEndPoint("GET", "/"+deviceId+"/temp", function (res) {
+    	//Should return connected probe numbers 
+    	//loop through them and get their tempuratures
+    });
 }
 
 function refreshGarage()
 {
     //It's possible this device has disconnected, kick back to devices screen
     var deviceId = devices["garage"];
-	var doorRequest = new XMLHttpRequest();
-	doorRequest.onreadystatechange = function() {
-		if (doorRequest.readyState == 4 && doorRequest.status == 200) 
-		{
-		}
-	};
-	doorRequest.open("GET", "/" + deviceId + "/garage/door", true);
-	doorRequest.send();
-	
-	var lightRequest = new XMLHttpRequest();
-	lightRequest.onreadystatechange = function() {
-		if (lightRequest.readyState == 4 && lightRequest.status == 200) 
-		{
-		}
-	};
-	lightRequest.open("GET", "/" + deviceId + "/garage/light", true);
-	lightRequest.send();
+    hitEndPoint("GET", "/"+deviceId+"/garage/door", function (res) {
+    	
+    });
+    hitEndPoint("GET", "/"+deviceId+"/garage/light", function (res) {
+    	
+    });
 }
 
 function tempClick()
@@ -64,7 +50,7 @@ function tempClick()
     list.style.display = "none";
     temp.style.display = "block";
 
-    window.setInterval(refreshTempuratures, 2000);
+    //window.setInterval(refreshTempuratures, 2000);
     refreshTempuratures();
 }
 
@@ -80,32 +66,37 @@ function garageClick()
     refreshGarage();
 }
 
+function sprinklerClick()
+{
+}
+
 function toggleGarageClick()
 {
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (xhttp.readyState == 4 && xhttp.status == 200) 
-		{
-		}
-	};
 	var deviceId = devices["garage"];
-	xhttp.open("POST", "/"+ deviceId+"/garage/door", true);
-	xhttp.send();
+	hitEndPoint("POST", "/"+deviceId+"/garage/door", undefined);
 }
 
 function toggleLightClick()
 {
+	var deviceId = devices["garage"];
+	hitEndPoint("POST", "/"+deviceId+"/garage/light", undefined);
+}
+
+function hitEndPoint(method, url, onComplete)
+{
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (xhttp.readyState == 4 && xhttp.status == 200) 
 		{
+			//Does not handle errors!!!
+			if (onComplete != undefined)
+			{
+				onComplete(xhttp.responseText);	
+			}
+			
 		}
 	};
-	var deviceId = devices["garage"];
-	xhttp.open("POST", "/"+deviceId+"/garage/light", true);
+	xhttp.open(method, url, true);
 	xhttp.send();
 }
 
-function sprinklerClick()
-{
-}
