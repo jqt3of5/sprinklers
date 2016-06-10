@@ -1,10 +1,11 @@
 #include <Particle.h>
 #include "Garage.h"
 
+Garage foo;
 Garage::Garage()
 {
   _lightTimeoutSeconds = 60;
-  _timer = new Timer(1000 * _lightTimeoutSeconds, LightTimedOut, true);
+  _timer = new Timer(1000 * _lightTimeoutSeconds, [this]() -> void {this->LightTimedOut();},  true);
 }
 
 void Garage::LightTimedOut()
@@ -15,7 +16,7 @@ void Garage::LightTimedOut()
 void Garage::MotionSensed()
 {
   digitalWrite(D7, digitalRead(D2));
-  _timer.start();
+  _timer->start();
 }
 
 
@@ -30,7 +31,7 @@ void Garage::ConfigPins()
   pinMode(D1, INPUT); // Close
   //motion
   pinMode(D2, INPUT_PULLDOWN);
-  attachInterrupt(D2, MotionSensed, RISING);
+  attachInterrupt(D2,[this]() -> void {this->MotionSensed();}, RISING);
 }
 
 
@@ -54,14 +55,14 @@ char * Garage::ProcessData(char * data, int count)
       else if (subCmd[0] == 'O') //Update Light time out
       {
         unsigned int timeout = atoi(strtok(nullptr, " "));
-        _timer.changePeriod(1000 * timeout);
+        _timer->changePeriod(1000 * timeout);
       }
     break;
     case 'D':
-      if (subCmd[0] == 'T') //I know it's a T, but pulse the pin to toggle the garage door 
+      if (subCmd[0] == 'T') //I know it's a T, but pulse the pin to toggle the garage door
       {
         digitalWrite(D6, HIGH);
-        System.delay(500);
+        delay(500);
         digitalWrite(D6, LOW);
       }
       else if (subCmd[0] == 'S')
