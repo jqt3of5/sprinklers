@@ -35,10 +35,27 @@ function refreshGarage()
     //It's possible this device has disconnected, kick back to devices screen
     var deviceId = devices["garage"];
     hitEndPoint("GET", "/"+deviceId+"/garage/door", function (res) {
+    	var doorButton = document.getElementById("asdf");
+    	if (res == "1")
+    	{
+    		doorButton.innerHTML = "On";
+    	}
+    	else if (res == "0")
+    	{
+    		doorButton.innerHTML = "Off";
+    	}
     	
     });
     hitEndPoint("GET", "/"+deviceId+"/garage/light", function (res) {
-    	
+    	var lightButton = document.getElementById("asdf");
+    	if (res == "1")
+    	{
+    		lightButton.innerHTML = "On";
+    	}
+    	else if (res == "0")
+    	{
+    		lightButton.innerHTML = "Off";
+    	}
     });
 }
 
@@ -62,7 +79,7 @@ function garageClick()
     list.style.display = "none";
     garage.style.display = "block";
 
-   // window.setInterval(refreshGarage, 500);
+   // window.setInterval(refreshGarage, 2000);
     refreshGarage();
 }
 
