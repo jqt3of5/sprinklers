@@ -47,7 +47,7 @@ function refreshGarage()
     	
     });
     hitEndPoint("GET", "/"+deviceId+"/garage/light", function (res) {
-    	var lightButton = document.getElementById("garageButton");
+    	var lightButton = document.getElementById("lightButton");
     	if (res == "1")
     	{
     		lightButton.innerHTML = "On";
