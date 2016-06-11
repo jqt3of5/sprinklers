@@ -46,8 +46,7 @@ for (var i = 0; i < endpoints.length; ++i)
 	{
 		app.post(endpoints[i].url, iife(endpoints[i]));
 	}
-	console.log("Creating endpoing for: " + endpoints[i].url);
-}
+	}
 
 function handleHttpRequest(endpoint, req, res)
 {

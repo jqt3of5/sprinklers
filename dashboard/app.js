@@ -68,8 +68,8 @@ function tempClick()
     list.style.display = "none";
     temp.style.display = "block";
 
-    window.setInterval(refreshTempuratures, 2000);
     refreshTempuratures();
+	window.setInterval(refreshTempuratures, 2000);
 }
 
 function garageClick()
@@ -80,8 +80,8 @@ function garageClick()
     list.style.display = "none";
     garage.style.display = "block";
 
-	window.setInterval(refreshGarage, 2000);
     refreshGarage();
+	window.setInterval(refreshGarage, 2000);
 }
 
 function sprinklerClick()
