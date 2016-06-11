@@ -38,25 +38,26 @@ function refreshGarage()
     	var doorButton = document.getElementById("doorButton");
     	if (res == "1")
     	{
-    		doorButton.innerHTML = "On";
+    		doorButton.innerHTML = "Open";
     	}
     	else if (res == "0")
     	{
-    		doorButton.innerHTML = "Off";
+    		doorButton.innerHTML = "Closed";
     	}
-    	
+		
+		hitEndPoint("GET", "/"+deviceId+"/garage/light", function (res) {
+			var lightButton = document.getElementById("lightButton");
+			if (res == "1")
+			{
+				lightButton.innerHTML = "On";
+			}
+			else if (res == "0")
+			{
+				lightButton.innerHTML = "Off";
+			}
+		});	
     });
-    hitEndPoint("GET", "/"+deviceId+"/garage/light", function (res) {
-    	var lightButton = document.getElementById("lightButton");
-    	if (res == "1")
-    	{
-    		lightButton.innerHTML = "On";
-    	}
-    	else if (res == "0")
-    	{
-    		lightButton.innerHTML = "Off";
-    	}
-    });
+    
 }
 
 function tempClick()
