@@ -44,7 +44,7 @@ for (var i = 0; i < endpoints.length; ++i)
 	}
 	else if (endpoints[i].method == "POST")
 	{
-		app.get(endpoints[i].url, iife(endpoints[i]));
+		app.post(endpoints[i].url, iife(endpoints[i]));
 	}
 	console.log("Creating endpoing for: " + endpoints[i].url);
 }
