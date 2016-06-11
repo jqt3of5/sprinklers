@@ -35,7 +35,7 @@ function refreshGarage()
     //It's possible this device has disconnected, kick back to devices screen
     var deviceId = devices["garage"];
     hitEndPoint("GET", "/"+deviceId+"/garage/door", function (res) {
-    	var doorButton = document.getElementById("asdf");
+    	var doorButton = document.getElementById("doorButton");
     	if (res == "1")
     	{
     		doorButton.innerHTML = "On";
@@ -47,7 +47,7 @@ function refreshGarage()
     	
     });
     hitEndPoint("GET", "/"+deviceId+"/garage/light", function (res) {
-    	var lightButton = document.getElementById("asdf");
+    	var lightButton = document.getElementById("garageButton");
     	if (res == "1")
     	{
     		lightButton.innerHTML = "On";
