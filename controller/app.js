@@ -111,6 +111,7 @@ var socket_server = net.createServer(function (socket)
 		socket.deviceId = device_info.deviceId;
 		device_infos[device_info.deviceId] = {type:device_info.type, deviceId:device_info.deviceId, name:undefined};
 		device_sockets[device_info.deviceId] = socket;
+		console.log("Device connected: " + device_info.deviceId));
 	});
 	
 	socket.on('close', function ()
