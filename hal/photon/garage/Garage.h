@@ -11,10 +11,14 @@ public:
   char * GetDeviceType();
 
 private:
+  bool _lightOverride;
   int _lightTimeoutSeconds;
-  Timer * _timer;
+  Timer * _motionTimer;
+  Timer * _overrideTimer;
 
   void MotionSensed();
   void LightTimedOut();
-
+  void LightOverrideTimedOut();
+  void ToggleLight();
+  void ToggleGarage();
 };
