@@ -7,6 +7,7 @@ Garage::Garage()
   _lightTimeoutSeconds = 60;
   _motionTimer = new Timer(1000 * _lightTimeoutSeconds, [this]() -> void {this->LightTimedOut();},  true);
   _overrideTimer = new Timer(1000 * 10 * _lightTimeoutSeconds, [this]() -> void {this->LightOverrideTimedOut();},  true);
+  _garageDoorPulseTimer = new Timer(500, []() -> {digitalWrite(D6, LOW);});
 }
 
 void Garage::LightTimedOut()
@@ -41,8 +42,9 @@ void Garage::ToggleLight()
 void Garage::ToggleGarage()
 {
   digitalWrite(D6, HIGH);
-  //delay(500);
-  digitalWrite(D6, LOW);
+  //Do I really have to keep this as a private member? Maybe I can get away with this :)
+  //Memory leak!!!
+ 
 }
 
 
