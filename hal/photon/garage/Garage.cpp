@@ -69,41 +69,64 @@ void Garage::ConfigPins()
 
 char * Garage::ProcessData(char * data, int count)
 {
-  char *cmd = strtok(data, " ");;
+  char *cmd = strtok(data, " ");
   char *subCmd = strtok(nullptr, " ");
-
-  char * response = new char[2]();
-  response[0] = '0';
-  switch(cmd[0])
+  
+  char * args[10] = {strtok(nullptr, " ")};
+  for(int i = 0; arg[i] != null; i++)
   {
-    case 'L':
-      if (subCmd[0] == 'T') //toggle
+    args[i+1] = strtok(nullptr, " ");
+  }
+  
+  char * response;
+  if (!strcmp(cmd, "L"))
+  {
+    response = HandleLightCommand(subcmd, args);
+  }
+  else if (!strcmp(cmd, "D"))
+  {
+    response = HandleDoorCommand(subcmd, args);
+  }
+  
+  return response;
+}
+
+char * Garage::HandleLightCommand(char *subCmd, char* args[])
+{
+    char * response = nullptr;
+    if (!strcmp(subCmd,"T")) //toggle
       {
         digitalWrite(D7, 1^digitalRead(D7));
       }
-      else if (subCmd[0] == 'S') //state
+    else if (!strcmp(subCmd,"S")) //state
       {
-          response[0] = digitalRead(D7) == HIGH ? '1' : '0';
+          response = new char[2]();
+          response[0] = digitalRead(D7) ? '1' : '0';
       }
-      else if (subCmd[0] == 'O') //Update Light time out
+    else if (!strcmp(subCmd,"O")) //Update Light time out
       {
-        unsigned int timeout = atoi(strtok(nullptr, " "));
-        _motionTimer->changePeriod(1000 * timeout);
-        _overrideTimer->changePeriod(1000 * 10 * timeout);
+        _lightTimeoutSeconds = atoi(args[0]);
+        _motionTimer->changePeriod(1000 * _lightTimeoutSeconds);
+        _overrideTimer->changePeriod(1000 * 10 * _lightTimeoutSeconds);
       }
-    break;
-    case 'D':
-      if (subCmd[0] == 'T') //I know it's a T, but pulse the pin to toggle the garage door
+      
+      return response;
+}
+
+char * Garage::HandleDoorCommand(char *subCmd, char* args[])
+{
+    char * response = nullptr;
+    if (!strcmp(subCmd, "T")) //I know it's a T, but pulse the pin to toggle the garage door
       {
         ToggleGarage();
       }
-      else if (subCmd[0] == 'S')
+    else if (!strcmp(subCmd,"S"))
       {
+        response = new char[2]();
         response[0] = digitalRead(D0) == HIGH ? '1' : (digitalRead(D1) == HIGH ? '0' : '-1');
       }
-    break;
-  }
-  return response;
+      
+      return response;
 }
 
 char * Garage::GetDeviceType()
