@@ -13,10 +13,13 @@ function configDevicePage()
 	};
 	
 	device_button["garage"].click(tempClick);
+	device_button["garage"].disabled = true;
 	
 	device_button["temp"].click(garageClick);
+	device_button["temp"].disabled = true;
 	
 	device_button["relay"].click(sprinklerClick);
+	device_button["relay"].disabled = true;
 	
 	refreshDevices();
 	window.setInterval(refreshDevices, 5000);
@@ -28,9 +31,6 @@ function tempClick()
 
     list.style.display = "none";
     temp.style.display = "block";
-
-    refreshTempuratures();
-	window.setInterval(refreshTempuratures, 2000);
 }
 function garageClick()
 {
@@ -39,9 +39,6 @@ function garageClick()
 
     list.style.display = "none";
     garage.style.display = "block";
-
-    refreshGarage();
-	window.setInterval(refreshGarage, 2000);
 }
 function sprinklerClick()
 {
@@ -91,6 +88,20 @@ function refreshDevices()
 			devices[device.type] = deviceId;
 			device_buttons[device.type].disabled = false;
 		}
+		if (devices["temp"] != undefined)
+		{
+			refreshTempuratures();
+			window.setInterval(refreshTempuratures, 2000);
+		}
+		if (devices["garage"] != undefined)
+		{
+			refreshGarage();
+			window.setInterval(refreshGarage, 2000);
+		}
+		if (devices["relay"] != undefined)
+		{
+			
+		}
 	})
 	.fail(function( xhr, status, errorThrown ) {
 		
@@ -121,7 +132,7 @@ function refreshGarage()
 	$.ajax({
 		url: "/" + deviceId + "/garage/door",
 		type:"GET",
-		dataType:"json"
+		dataType:"text"
 	})
 	.done (function(json){
 		var doorButton = $(".door-button");
@@ -140,7 +151,7 @@ function refreshGarage()
 		$.ajax({
 			url: "/" + deviceId + "/garage/light",
 			type:"GET",
-			dataType:"json"
+			dataType:"text"
 		})
 		.done (function(json){
 			var doorButton = $(".light-button");
