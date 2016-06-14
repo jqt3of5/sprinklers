@@ -29,20 +29,20 @@ void Garage::LightOverrideTimedOut()
 void Garage::MotionSensed()
 {
   digitalWrite(D7, digitalRead(D2));
-  _motionTimer->start();
+  _motionTimer->startFromISR();
 }
 
 void Garage::ToggleLight()
 {
   _lightOverride = true;
   digitalWrite(D7, 1^digitalRead(D7));
-  _overrideTimer->start();
+  _overrideTimer->startFromISR();
 }
 
 void Garage::ToggleGarage()
 {
   digitalWrite(D6, HIGH);
- _garageDoorPulseTimer.start();
+ _garageDoorPulseTimer->startFromISR();
 }
 
 
