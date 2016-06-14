@@ -42,9 +42,7 @@ void Garage::ToggleLight()
 void Garage::ToggleGarage()
 {
   digitalWrite(D6, HIGH);
-  //Do I really have to keep this as a private member? Maybe I can get away with this :)
-  //Memory leak!!!
- 
+ _garageDoorPulseTimer.start();
 }
 
 
