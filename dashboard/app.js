@@ -51,7 +51,7 @@ function configGaragePage()
 	var lightButton = $(".light-button")
 	.click(function() {
 		$.ajax({
-			url: "/" + deviceId + "/garage/door",
+			url: "/" + deviceId + "/garage/light",
 			type:"POST",
 			dataType:"json"
 		});
@@ -60,7 +60,7 @@ function configGaragePage()
 	var lightButton = $(".door-button")
 	.click(function() {
 		$.ajax({
-			url: "/" + deviceId + "/garage/light",
+			url: "/" + deviceId + "/garage/door",
 			type:"POST",
 			dataType:"json"
 		});
