@@ -1,11 +1,80 @@
 var device_buttons = [];
-
-window.onload = function()
+$(function() {
+	configDevicePage();
+	configGaragePage();
+	configSprinklerPage();
+});
+function configDevicePage()
 {
-    device_buttons = {"temp":document.getElementById("thermometer-button"), "garage": document.getElementById("garage-button"), "relay": document.getElementById("sprinkler-button")};
-    refreshDevices();
-    window.setInterval(refreshDevices, 5000);
+	device_buttons = {
+		"temp":$(".thermometer-button"), 
+		"garage": $(".garage-button"), 
+		"relay": $(".sprinkler-button")
+	};
+	
+	device_button["garage"].click(tempClick);
+	
+	device_button["temp"].click(garageClick);
+	
+	device_button["relay"].click(sprinklerClick);
+	
+	refreshDevices();
+	window.setInterval(refreshDevices, 5000);
 }
+function tempClick()
+{
+    var list = document.getElementById("device-list");
+    var temp = document.getElementById("thermometer");
+
+    list.style.display = "none";
+    temp.style.display = "block";
+
+    refreshTempuratures();
+	window.setInterval(refreshTempuratures, 2000);
+}
+function garageClick()
+{
+    var list = document.getElementById("device-list");
+    var garage = document.getElementById("garage");
+
+    list.style.display = "none";
+    garage.style.display = "block";
+
+    refreshGarage();
+	window.setInterval(refreshGarage, 2000);
+}
+function sprinklerClick()
+{
+}
+
+function configGaragePage()
+{
+	var deviceId = devices["garage"];
+	
+	var lightButton = $(".light-button")
+	.click(function() {
+		$.ajax({
+			url: "/" + deviceId + "/garage/door",
+			type:"POST",
+			dataType:"json"
+		});
+	});
+	
+	var lightButton = $(".door-button")
+	.click(function() {
+		$.ajax({
+			url: "/" + deviceId + "/garage/light",
+			type:"POST",
+			dataType:"json"
+		});
+	});
+}
+
+function configSprinklerPage()
+{
+	
+}
+
 var devices = {};
 function refreshDevices()
 {
@@ -55,7 +124,7 @@ function refreshGarage()
 		dataType:"json"
 	})
 	.done (function(json){
-		var doorButton = document.getElementById("doorButton");
+		var doorButton = $(".door-button");
     		if (res == "1")
 	    	{
 	    		doorButton.innerHTML = "Open";
@@ -74,7 +143,7 @@ function refreshGarage()
 			dataType:"json"
 		})
 		.done (function(json){
-			var doorButton = document.getElementById("lightButton");
+			var doorButton = $(".light-button");
 	    		if (res == "1")
 		    	{
 		    		doorButton.innerHTML = "On";
@@ -90,51 +159,6 @@ function refreshGarage()
 	});
 }
 
-function tempClick()
-{
-    var list = document.getElementById("device-list");
-    var temp = document.getElementById("thermometer");
 
-    list.style.display = "none";
-    temp.style.display = "block";
 
-    refreshTempuratures();
-	window.setInterval(refreshTempuratures, 2000);
-}
-
-function garageClick()
-{
-    var list = document.getElementById("device-list");
-    var garage = document.getElementById("garage");
-
-    list.style.display = "none";
-    garage.style.display = "block";
-
-    refreshGarage();
-	window.setInterval(refreshGarage, 2000);
-}
-
-function sprinklerClick()
-{
-}
-
-function toggleGarageClick()
-{
-	var deviceId = devices["garage"];
-	$.ajax({
-		url: "/" + deviceId + "/garage/door",
-		type:"POST",
-		dataType:"json"
-	});
-}
-
-function toggleLightClick()
-{
-	var deviceId = devices["garage"];
-	$.ajax({
-		url: "/" + deviceId + "/garage/light",
-		type:"POST",
-		dataType:"json"
-	});
-}
 
