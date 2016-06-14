@@ -9,14 +9,22 @@ window.onload = function()
 var devices = {};
 function refreshDevices()
 {
-	hitEndPoint("GET", "/devices",function(res) {
-			var devs = JSON.parse(res);
-			for (var deviceId in devs)
-			{
-				var device = devs[deviceId];
-				devices[device.type] = deviceId;
-				device_buttons[device.type].disabled = false;
-			}
+	$.ajax({
+		url: "/devices",
+		type:"GET",
+		dataType:"json"
+	})
+	.done (function(json){
+		var devs = JSON.parse(res);
+		for (var deviceId in devs)
+		{
+			var device = devs[deviceId];
+			devices[device.type] = deviceId;
+			device_buttons[device.type].disabled = false;
+		}
+	})
+	.fail(function( xhr, status, errorThrown ) {
+		
 	});
 }
 
@@ -24,40 +32,62 @@ function refreshTempuratures()
 {
     //It's possible this device has disconnected, kick back to devices screen
     var deviceId = devices["temp"];
-    hitEndPoint("GET", "/"+deviceId+"/temp", function (res) {
-    	//Should return connected probe numbers 
-    	//loop through them and get their tempuratures
-    });
+    	$.ajax({
+		url: "/" + deviceId + "/temp",
+		type:"GET",
+		dataType:"json"
+	})
+	.done (function(json){
+		
+	})
+	.fail(function( xhr, status, errorThrown ) {
+		
+	});
 }
 
 function refreshGarage()
 {
     //It's possible this device has disconnected, kick back to devices screen
     var deviceId = devices["garage"];
-    hitEndPoint("GET", "/"+deviceId+"/garage/door", function (res) {
-    	var doorButton = document.getElementById("doorButton");
-    	if (res == "1")
-    	{
-    		doorButton.innerHTML = "Open";
-    	}
-    	else if (res == "0")
-    	{
-    		doorButton.innerHTML = "Closed";
-    	}
+	$.ajax({
+		url: "/" + deviceId + "/garage/door",
+		type:"GET",
+		dataType:"json"
+	})
+	.done (function(json){
+		var doorButton = document.getElementById("doorButton");
+    		if (res == "1")
+	    	{
+	    		doorButton.innerHTML = "Open";
+	    	}
+	    	else if (res == "0")
+	    	{
+	    		doorButton.innerHTML = "Closed";
+	    	}
+	})
+	.fail(function( xhr, status, errorThrown ) {
 		
-		hitEndPoint("GET", "/"+deviceId+"/garage/light", function (res) {
-			var lightButton = document.getElementById("lightButton");
-			if (res == "1")
-			{
-				lightButton.innerHTML = "On";
-			}
-			else if (res == "0")
-			{
-				lightButton.innerHTML = "Off";
-			}
-		});	
-    });
-    
+	}).always(function() {
+		$.ajax({
+			url: "/" + deviceId + "/garage/light",
+			type:"GET",
+			dataType:"json"
+		})
+		.done (function(json){
+			var doorButton = document.getElementById("lightButton");
+	    		if (res == "1")
+		    	{
+		    		doorButton.innerHTML = "On";
+		    	}
+		    	else if (res == "0")
+		    	{
+		    		doorButton.innerHTML = "Off";
+		    	}
+		})
+		.fail(function( xhr, status, errorThrown ) {
+			
+		});
+	});
 }
 
 function tempClick()
@@ -91,30 +121,20 @@ function sprinklerClick()
 function toggleGarageClick()
 {
 	var deviceId = devices["garage"];
-	hitEndPoint("POST", "/"+deviceId+"/garage/door", undefined);
+	$.ajax({
+		url: "/" + deviceId + "/garage/door",
+		type:"POST",
+		dataType:"json"
+	});
 }
 
 function toggleLightClick()
 {
 	var deviceId = devices["garage"];
-	hitEndPoint("POST", "/"+deviceId+"/garage/light", undefined);
-}
-
-function hitEndPoint(method, url, onComplete)
-{
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (xhttp.readyState == 4 && xhttp.status == 200) 
-		{
-			//Does not handle errors!!!
-			if (onComplete != undefined)
-			{
-				onComplete(xhttp.responseText);	
-			}
-			
-		}
-	};
-	xhttp.open(method, url, true);
-	xhttp.send();
+	$.ajax({
+		url: "/" + deviceId + "/garage/light",
+		type:"POST",
+		dataType:"json"
+	});
 }
 
