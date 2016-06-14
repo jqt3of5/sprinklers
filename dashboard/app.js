@@ -54,6 +54,8 @@ function configGaragePage()
 			url: "/" + deviceId + "/garage/light",
 			type:"POST",
 			dataType:"json"
+		}).done(function(){
+			
 		});
 	});
 	
@@ -63,6 +65,8 @@ function configGaragePage()
 			url: "/" + deviceId + "/garage/door",
 			type:"POST",
 			dataType:"json"
+		}).done(function(){
+			
 		});
 	});
 }
@@ -128,27 +132,35 @@ function refreshTempuratures()
 function refreshGarage()
 {
     //It's possible this device has disconnected, kick back to devices screen
-    var deviceId = devices["garage"];
-	$.ajax({
-		url: "/" + deviceId + "/garage/door",
-		type:"GET",
-		dataType:"text"
-	})
-	.done (function(json){
-		var doorButton = $(".door-button");
-    		if (res == "1")
-	    	{
-	    		doorButton.innerHTML = "Open";
-	    	}
-	    	else if (res == "0")
-	    	{
-	    		doorButton.innerHTML = "Closed";
-	    	}
-	})
-	.fail(function( xhr, status, errorThrown ) {
-		
-	}).always(function() {
-		$.ajax({
+  	refreshGarageDoor().always(refreshGarageLight).fail(function( xhr, status, errorThrown ) {
+			
+		});
+}
+
+function refreshGarageLight()
+{
+	var deviceId = devices["garage"];
+	return $.ajax({
+			url: "/" + deviceId + "/garage/door",
+			type:"GET",
+			dataType:"text"
+		})
+		.done (function(json){
+			var doorButton = $(".door-button");
+	    		if (res == "1")
+		    	{
+		    		doorButton.innerHTML = "Open";
+		    	}
+		    	else if (res == "0")
+		    	{
+		    		doorButton.innerHTML = "Closed";
+		    	}
+		});
+}
+
+function refreshGarageDoor()
+{
+	return $.ajax({
 			url: "/" + deviceId + "/garage/light",
 			type:"GET",
 			dataType:"text"
@@ -163,11 +175,7 @@ function refreshGarage()
 		    	{
 		    		doorButton.innerHTML = "Off";
 		    	}
-		})
-		.fail(function( xhr, status, errorThrown ) {
-			
 		});
-	});
 }
 
 
