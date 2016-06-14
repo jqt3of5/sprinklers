@@ -1,4 +1,7 @@
 #pragma SPARK_NO_PREPROCESSOR
+
+SYSTEM_MODE(SEMI_AUTOMATIC);
+
 #include <Particle.h>
 #include <softap_http.h>
 #include "http.h"
@@ -39,15 +42,9 @@ void setup()
         //If no address is set, start listening.
         WiFi.listen();
       }
-      else if (!client.connect(ip.addr, 8081))
-      {
-        //If connecting failed, fall back to listening mode
-        WiFi.listen();
-      }
       else
       {
-        //Tell the cloud what type of device this is
-        client.printf("{\"type\":\"%s\", \"deviceId\":\"%s\"}",_device->GetDeviceType(), DEVICE_ID);
+        Particle.connect();
         _connected = true;
       }
   }
@@ -85,12 +82,15 @@ void loop()
     IpAddr ip;
     EEPROM.get(EEPROM_HOST_ADDR, ip);
     //Try once to reconnect
-    if (!client.connect(ip.addr, 8081))
+    if (client.connect(ip.addr, 8081))
+    {
+       //Tell the cloud what type of device this is
+        client.printf("{\"type\":\"%s\", \"deviceId\":\"%s\"}",_device->GetDeviceType(), DEVICE_ID);
+    }
+    else
     {
       _connected = false;
       WiFi.listen();
     }
   }
-
-
 }
