@@ -23,8 +23,8 @@ function configDevicePage()
 }
 function tempClick()
 {
-    var list = document.getElementById("device-list");
-    var temp = document.getElementById("thermometer");
+    var list = $(".device-list");
+    var temp = $(".thermometer");
 
     list.style.display = "none";
     temp.style.display = "block";
@@ -34,8 +34,8 @@ function tempClick()
 }
 function garageClick()
 {
-    var list = document.getElementById("device-list");
-    var garage = document.getElementById("garage");
+    var list = $(".device-list");
+    var garage = $(".garage");
 
     list.style.display = "none";
     garage.style.display = "block";
