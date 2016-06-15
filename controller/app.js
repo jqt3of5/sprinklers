@@ -104,18 +104,7 @@ var device_infos = {};
 var device_sockets = {};
 var socket_server = net.createServer(function (socket)
 {
-	socket.keepAliveTimer = setInterval(function() {
-		socket.once('data', function(data){
-			clearTimerout(socket.killTimer);
-		});
-		socket.killTimer = setTimer(function() {
-			socket.end();
-		}, 10000);
-		//write a single zero byte for keep alive
-		socket.write('\x00');
-		
-	}, 100000);
-	
+	socket.setKeepAlive(true, 60000);
 	socket.once('data', function (data)
 	{
 		var device_info = JSON.parse(data);
