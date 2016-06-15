@@ -21,7 +21,6 @@ bool _connected = false;
 TCPClient client;
 void setup()
 {
-  
   _device = new Garage();
   _device->ConfigPins();
 
@@ -85,7 +84,7 @@ void loop()
     if (client.connect(ip.addr, 8081))
     {
        //Tell the cloud what type of device this is
-        client.printf("{\"type\":\"%s\", \"deviceId\":\"%s\"}",_device->GetDeviceType(), _device->GetDeviceId());
+        client.printf(_device->Serialize());
     }
     else
     {
