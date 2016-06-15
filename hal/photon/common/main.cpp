@@ -8,7 +8,6 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
 //#include "IDevice.h"
 #include "Garage.h"
 
-const char * DEVICE_ID = "996903cc-f22a-4c03-94b1-fd050d942ef2";
 const byte CURRENT_VERSION = 0;
 const int EEPROM_VERSION = 0;
 const int EEPROM_HOST_ADDR = 1;
@@ -22,6 +21,7 @@ bool _connected = false;
 TCPClient client;
 void setup()
 {
+  
   _device = new Garage();
   _device->ConfigPins();
 
@@ -85,7 +85,7 @@ void loop()
     if (client.connect(ip.addr, 8081))
     {
        //Tell the cloud what type of device this is
-        client.printf("{\"type\":\"%s\", \"deviceId\":\"%s\"}",_device->GetDeviceType(), DEVICE_ID);
+        client.printf("{\"type\":\"%s\", \"deviceId\":\"%s\"}",_device->GetDeviceType(), _device->GetDeviceId());
     }
     else
     {
