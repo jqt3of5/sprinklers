@@ -71,26 +71,19 @@ void readDataFromCloud()
       {
         data[i] = _client.read();
       }
-      //If we get a single 0 byte from the server, they are sending us a keep alive. 
-      if (total == 1 && data[0] == 0)
+   
+      //Process Data
+      char * result = _device->ProcessData(data, total);
+      if (result != nullptr)
       {
-        _client.println("OK");
+        _client.println(result);  
+        free(result);
       }
       else
       {
-        //Process Data
-        char * result = _device->ProcessData(data, total);
-        if (result != nullptr)
-        {
-          _client.println(result);  
-          free(result);
-        }
-        else
-        {
-          _client.println("OK");
-        }
+        _client.println("OK");
       }
-      
+    
       free(data);
     }
 }
