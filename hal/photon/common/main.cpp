@@ -18,7 +18,7 @@ STARTUP(softap_set_application_page_handler(http_handler, nullptr));
 
 IDevice * _device;
 bool _connected = false;
-TCPClient client;
+TCPClient _client;
 void setup()
 {
   _device = new Garage();
@@ -26,70 +26,78 @@ void setup()
 
   byte version;
   EEPROM.get(EEPROM_VERSION, version);
-  if (version != CURRENT_VERSION)
+  if (version == CURRENT_VERSION)
   {
-    //TODO: Migrate somehow?
-    WiFi.listen();
-    EEPROM.put(EEPROM_VERSION, CURRENT_VERSION);
+    IpAddr ip;
+    EEPROM.get(EEPROM_HOST_ADDR, ip);
+    if (ip.addr[0] != 0xFF)
+    {
+      Particle.connect();
+      _connected = true;
+      return;
+    }
   }
   else
   {
-      IpAddr ip;
-      EEPROM.get(EEPROM_HOST_ADDR, ip);
-      if (ip.addr[0] == 0xFF)
-      {
-        //If no address is set, start listening.
-        WiFi.listen();
-      }
-      else
-      {
-        Particle.connect();
-        _connected = true;
-      }
+    //TODO: Migrate somehow?
+    EEPROM.put(EEPROM_VERSION, CURRENT_VERSION);
   }
+  //Error state. 
+  WiFi.listen();
 }
 
 void loop()
 {
-  if (client.connected())
+  if (_client.connected())
   {
-    int total = client.available();
+    readDataFromCloud();
+    //TODO: Write data to cloud. Events/etc. 
+  }
+  //It is supposed to be connected to the cloud, but at this point isn't
+  else if (_connected)
+  {
+    connectToCloud();
+  }
+}
+
+void readDataFromCloud()
+{
+    int total = _client.available();
     if (total)
     {
       char * data = new char[total+1]();
 
-      for (int i = 0; client.available(); ++i)
+      for (int i = 0; _client.available(); ++i)
       {
-        data[i] = client.read();
+        data[i] = _client.read();
       }
       //Process Data
       char * result = _device->ProcessData(data, total);
       if (result != nullptr)
       {
-        client.println(result);  
+        _client.println(result);  
         free(result);
       }
       else
       {
-        client.println("OK");
+        _client.println("OK");
       }
       free(data);
     }
-  }
-  else if (_connected)
-  {
+}
+void connectToCloud()
+{
     IpAddr ip;
     EEPROM.get(EEPROM_HOST_ADDR, ip);
     //Try once to reconnect
-    if (client.connect(ip.addr, 8081))
+    if (_client.connect(ip.addr, 8081))
     {
        //Tell the cloud what type of device this is
-        client.printf(_device->Serialize());
+        _client.printf(_device->Serialize());
     }
     else
     {
       _connected = false;
       WiFi.listen();
     }
-  }
 }
