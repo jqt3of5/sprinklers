@@ -46,7 +46,7 @@ for (var i = 0; i < endpoints.length; ++i)
 	{
 		app.post(endpoints[i].url, iife(endpoints[i]));
 	}
-	}
+}
 
 function handleHttpRequest(endpoint, req, res)
 {
@@ -60,18 +60,18 @@ function handleHttpRequest(endpoint, req, res)
 		res.status(405).end();
 	}
 	else
-	{
-		var deviceSocket = device_sockets[deviceId];
-		//While I really really like this idea, I'm worried data will be lost
-		deviceSocket.once('data', function (data) {
-			console.log("Received response from photon")
-			res.end(data);
-		});
-		
-		var cmd = endpoint.createCommand(req.params, req.body);
-		console.log("Executing command: " + cmd);
-		console.log("\nOn device with ID: " + deviceId)
-		deviceSocket.write(cmd);	
+        {
+	    var deviceSocket = device_sockets[deviceId];
+	    var dataHandler =  
+	    deviceSocket.once('data', function (data) {
+		console.log("Received response from photon")
+		res.end(data);
+	    });
+    
+	    var cmd = endpoint.createCommand(req.params, req.body);
+	    console.log("Executing command: " + cmd);
+	    console.log("\nOn device with ID: " + deviceId)
+	    deviceSocket.write(id + " " + cmd);	
 	}
 }
 

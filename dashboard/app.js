@@ -7,38 +7,38 @@ $(function() {
 function configDevicePage()
 {
 	device_buttons = {
-		"temp":$(".thermometer-button"), 
-		"garage": $(".garage-button"), 
-		"relay": $(".sprinkler-button")
+		"temp":$("#thermometer-button"), 
+		"garage": $("#garage-button"), 
+		"relay": $("#sprinkler-button")
 	};
 	
-	device_button["garage"].click(tempClick);
-	device_button["garage"].disabled = true;
+	device_buttons["temp"].click(tempClick);
+	device_buttons["temp"].disabled = true;
 	
-	device_button["temp"].click(garageClick);
-	device_button["temp"].disabled = true;
+	device_buttons["garage"].click(garageClick);
+	device_buttons["garage"].disabled = true;
 	
-	device_button["relay"].click(sprinklerClick);
-	device_button["relay"].disabled = true;
+	device_buttons["relay"].click(sprinklerClick);
+	device_buttons["relay"].disabled = true;
 	
 	refreshDevices();
 	window.setInterval(refreshDevices, 5000);
 }
 function tempClick()
 {
-    var list = $(".device-list");
-    var temp = $(".thermometer");
+    var list = $("#device-list");
+    var temp = $("#thermometer");
 
-    list.style.display = "none";
-    temp.style.display = "block";
+    list.css("display", "none");
+    temp.css("display", "block");
 }
 function garageClick()
 {
-    var list = $(".device-list");
-    var garage = $(".garage");
+    var list = $("#device-list");
+    var garage = $("#garage");
 
-    list.style.display = "none";
-    garage.style.display = "block";
+    list.css("display", "none");
+    garage.css("display", "block");
 }
 function sprinklerClick()
 {
@@ -46,11 +46,13 @@ function sprinklerClick()
 
 function configGaragePage()
 {
-	var deviceId = devices["garage"];
+
 	
-	var lightButton = $(".light-button")
-	.click(function() {
+	var lightButton = $("#light-button")
+	    .click(function() {
+		var deviceId = devices["garage"];
 		$.ajax({
+		
 			url: "/" + deviceId + "/garage/light",
 			type:"POST",
 			dataType:"json"
@@ -59,8 +61,9 @@ function configGaragePage()
 		});
 	});
 	
-	var lightButton = $(".door-button")
-	.click(function() {
+	var lightButton = $("#door-button")
+	    .click(function() {
+		var deviceId = devices["garage"];
 		$.ajax({
 			url: "/" + deviceId + "/garage/door",
 			type:"POST",
@@ -84,8 +87,8 @@ function refreshDevices()
 		type:"GET",
 		dataType:"json"
 	})
-	.done (function(json){
-		var devs = JSON.parse(res);
+	.done (function(devs){
+		//var devs = JSON.parse(json);
 		for (var deviceId in devs)
 		{
 			var device = devs[deviceId];
@@ -95,12 +98,10 @@ function refreshDevices()
 		if (devices["temp"] != undefined)
 		{
 			refreshTempuratures();
-			window.setInterval(refreshTempuratures, 2000);
 		}
 		if (devices["garage"] != undefined)
 		{
 			refreshGarage();
-			window.setInterval(refreshGarage, 2000);
 		}
 		if (devices["relay"] != undefined)
 		{
@@ -132,7 +133,7 @@ function refreshTempuratures()
 function refreshGarage()
 {
     //It's possible this device has disconnected, kick back to devices screen
-  	refreshGarageDoor().always(refreshGarageLight).fail(function( xhr, status, errorThrown ) {
+  	refreshGarageDoor().done(refreshGarageLight).fail(function( xhr, status, errorThrown ) {
 			
 		});
 }
@@ -143,37 +144,38 @@ function refreshGarageLight()
 	return $.ajax({
 			url: "/" + deviceId + "/garage/door",
 			type:"GET",
-			dataType:"text"
+			dataType:"json"
 		})
 		.done (function(json){
-			var doorButton = $(".door-button");
-	    		if (res == "1")
+			var doorButton = $("#door-button");
+	    	    if (json.state)
 		    	{
-		    		doorButton.innerHTML = "Open";
+		    	    doorButton.text("Open");
 		    	}
-		    	else if (res == "0")
+		    else 
 		    	{
-		    		doorButton.innerHTML = "Closed";
+		    	    doorButton.text( "Closed");
 		    	}
 		});
 }
 
 function refreshGarageDoor()
 {
+    	var deviceId = devices["garage"];
 	return $.ajax({
 			url: "/" + deviceId + "/garage/light",
 			type:"GET",
-			dataType:"text"
+			dataType:"json"
 		})
 		.done (function(json){
-			var doorButton = $(".light-button");
-	    		if (res == "1")
+			var doorButton = $("#light-button");
+	    	    if (json.state)
 		    	{
-		    		doorButton.innerHTML = "On";
+		    	    doorButton.text("On");;
 		    	}
-		    	else if (res == "0")
+		    else
 		    	{
-		    		doorButton.innerHTML = "Off";
+		    	    doorButton.text("Off");
 		    	}
 		});
 }

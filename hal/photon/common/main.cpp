@@ -71,7 +71,7 @@ void readDataFromCloud()
       {
         data[i] = _client.read();
       }
-   
+
       //Process Data
       char * result = _device->ProcessData(data, total);
       if (result != nullptr)
