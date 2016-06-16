@@ -100,8 +100,8 @@ char * Garage::HandleLightCommand(char *subCmd, char* args[])
       }
     else if (!strcmp(subCmd,"S")) //state
       {
-          response = new char[2]();
-          response[0] = digitalRead(D7) ? '1' : '0';
+          response = new char[15]();
+          sprintf(response, "{\"state\":%d}", digitalRead(D7));
       }
     else if (!strcmp(subCmd,"O")) //Update Light time out
       {
@@ -123,7 +123,8 @@ char * Garage::HandleDoorCommand(char *subCmd, char* args[])
     else if (!strcmp(subCmd,"S"))
       {
         response = new char[2]();
-        response[0] = digitalRead(D0) == HIGH ? '1' : (digitalRead(D1) == HIGH ? '0' : '-1');
+        int state = digitalRead(D0) == HIGH ? '1' : (digitalRead(D1) == HIGH ? '0' : '-1');
+        sprintf(response, "{\"state\":%d}",state);
       }
       
       return response;
