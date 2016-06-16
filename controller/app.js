@@ -15,6 +15,7 @@ var fs = require('fs');
 var net = require('net');
 var uuid = require('node-uuid');
 
+/*global DeviceTypeEnum*/
 DeviceTypeEnum ={
 	Garage : "garage",
 	Temp : "temp",
@@ -61,7 +62,7 @@ function handleHttpRequest(endpoint, req, res)
 		res.status(405).end();
 	}
 	else
-        {
+    {
 	    var cmd = endpoint.createCommand(req.params, req.body);
 	    cmdQueue.push({deviceId:deviceId, command:cmd, response:res});
 	    processQueue();
@@ -78,7 +79,7 @@ function processQueue()
 	var cmdObj = cmdQueue.pop();
 	if (cmdObj == undefined)
 	{
-		isPrcessingQueue = false;
+		isProcessingQueue = false;
 		return;
 	}
 	
@@ -100,7 +101,7 @@ app.post('/:deviceId/name/:name', function(req, res) {
 	var deviceId = req.params.deviceId;
 	var name = req.params.deviceId;
 	
-	if (device_info[name] != undefined)
+	if (device_infos[name] != undefined)
 	{
 		res.status(405).end();
 		return;
