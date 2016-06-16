@@ -1,26 +1,34 @@
 #include <Particle.h>
 #include "Garage.h"
 
+#define GARAGE_BUTTON D3 // The button to push to toggle the garage door
+#define LIGHT_BUTTON D2 // the button to push to toggle the light
+#define GARAGE_SWITCH D6 //The switch that opens/closes the garage door
+#define LIGHT_SWITCH D7 //The siwtch that turns the light on/off
+#define MOTION_INPUT D4 //The input from the motion detector
+#define REED_OPEN D0 //The reed switch that indicates the garage door is open
+#define REED_CLOSE D1 //The reed switch that indicates the garage door is closed
+
 Garage::Garage()
 {
   _lightOverride = false;
   _lightTimeoutSeconds = 60;
   _motionTimer = new Timer(1000 * _lightTimeoutSeconds, [this]() -> void {this->LightTimedOut();},  true);
   _overrideTimer = new Timer(1000 * 10 * _lightTimeoutSeconds, [this]() -> void {this->LightOverrideTimedOut();},  true);
-  _garageDoorPulseTimer = new Timer(500, []() -> {digitalWrite(D6, LOW);});
+  _garageDoorPulseTimer = new Timer(500, []() -> {digitalWrite(GARAGE_SWITCH, LOW);});
 }
 
 void Garage::LightTimedOut()
 {
   if (!_lightOverride)
   {
-    digitalWrite(D7, LOW);
+    digitalWrite(LIGHT_SWITCH, LOW);
   }
 }
 
 void Garage::LightOverrideTimedOut()
 {
-  if (!digitalRead(D2))
+  if (!digitalRead(LIGHT_BUTTON))
   {
     LightTimedOut();
   }
@@ -28,20 +36,20 @@ void Garage::LightOverrideTimedOut()
 }
 void Garage::MotionSensed()
 {
-  digitalWrite(D7, digitalRead(D2));
+  digitalWrite(LIGHT_SWITCH, digitalRead(LIGHT_BUTTON));
   _motionTimer->startFromISR();
 }
 
 void Garage::ToggleLight()
 {
   _lightOverride = true;
-  digitalWrite(D7, 1^digitalRead(D7));
+  digitalWrite(LIGHT_SWITCH, 1^digitalRead(LIGHT_SWITCH));
   _overrideTimer->startFromISR();
 }
 
 void Garage::ToggleGarage()
 {
-  digitalWrite(D6, HIGH);
+  digitalWrite(GARAGE_SWITCH, HIGH);
  _garageDoorPulseTimer->startFromISR();
 }
 
@@ -49,21 +57,21 @@ void Garage::ToggleGarage()
 void Garage::ConfigPins()
 {
   //Light
-  pinMode(D7, OUTPUT);
+  pinMode(LIGHT_SWITCH, OUTPUT);
   //Door
-  pinMode(D6, OUTPUT);
+  pinMode(GARAGE_SWITCH, OUTPUT);
   //Reed Switches
-  pinMode(D0, INPUT); // Open
-  pinMode(D1, INPUT); // Close
+  pinMode(REED_OPEN, INPUT); // Open
+  pinMode(REED_CLOSE, INPUT); // Close
   //Light Toggle Button
-  pinMode(D2, INPUT_PULLDOWN);
-  attachInterrupt(D2, [this]() -> void {this->ToggleLight();}, RISING);
+  pinMode(LIGHT_BUTTON, INPUT_PULLDOWN);
+  attachInterrupt(LIGHT_BUTTON, [this]() -> void {this->ToggleLight();}, RISING);
   //Garage Toggle Button
-  pinMode(D3, INPUT_PULLDOWN);
-  attachInterrupt(D2, [this]() -> void {this->ToggleGarage();}, RISING);
+  pinMode(GARAGE_BUTTON, INPUT_PULLDOWN);
+  attachInterrupt(LIGHT_BUTTON, [this]() -> void {this->ToggleGarage();}, RISING);
   //motion
-  pinMode(D4, INPUT_PULLDOWN);
-  attachInterrupt(D4,[this]() -> void {this->MotionSensed();}, RISING);
+  pinMode(MOTION_INPUT, INPUT_PULLDOWN);
+  attachInterrupt(MOTION_INPUT,[this]() -> void {this->MotionSensed();}, RISING);
 }
 
 
@@ -96,12 +104,12 @@ char * Garage::HandleLightCommand(char *subCmd, char* args[])
     char * response = nullptr;
     if (!strcmp(subCmd,"T")) //toggle
       {
-        digitalWrite(D7, 1^digitalRead(D7));
+        digitalWrite(LIGHT_SWITCH, 1^digitalRead(LIGHT_SWITCH));
       }
     else if (!strcmp(subCmd,"S")) //state
       {
           response = new char[15]();
-          sprintf(response, "{\"state\":%d}", digitalRead(D7));
+          sprintf(response, "{\"state\":%d}", digitalRead(LIGHT_SWITCH));
       }
     else if (!strcmp(subCmd,"O")) //Update Light time out
       {
@@ -123,7 +131,7 @@ char * Garage::HandleDoorCommand(char *subCmd, char* args[])
     else if (!strcmp(subCmd,"S"))
       {
         response = new char[2]();
-        int state = digitalRead(D0) == HIGH ? '1' : (digitalRead(D1) == HIGH ? '0' : '-1');
+        int state = digitalRead(REED_OPEN) == HIGH ? '1' : (digitalRead(REED_CLOSE) == HIGH ? '0' : '-1');
         sprintf(response, "{\"state\":%d}",state);
       }
       
