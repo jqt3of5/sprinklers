@@ -48,6 +48,7 @@ for (var i = 0; i < endpoints.length; ++i)
 	}
 }
 
+
 function handleHttpRequest(endpoint, req, res)
 {
 	var deviceId = req.params.deviceId;
@@ -61,20 +62,38 @@ function handleHttpRequest(endpoint, req, res)
 	}
 	else
         {
-	    var deviceSocket = device_sockets[deviceId];
-	    var dataHandler =  
-	    deviceSocket.once('data', function (data) {
-		console.log("Received response from photon")
-		res.end(data);
-	    });
-    
 	    var cmd = endpoint.createCommand(req.params, req.body);
-	    console.log("Executing command: " + cmd);
-	    console.log("\nOn device with ID: " + deviceId)
-	    deviceSocket.write(id + " " + cmd);	
+	    cmdQueue.push({deviceId:deviceId, command:cmd, response:res});
+	    processQueue();
 	}
 }
-
+var cmdQueue = [];
+var isProcessingQueue = false;
+function processQueue()
+{
+	if (isProcessingQueue)
+	{
+		return;
+	}
+	var cmdObj = cmdQueue.pop();
+	if (cmdObj == undefined)
+	{
+		isPrcessingQueue = false;
+		return;
+	}
+	
+	isProcessingQueue = true;
+	var deviceSocket = device_sockets[cmdObj.deviceId];
+	deviceSocket.once('data', function (data) {
+		console.log("Received response from photon")
+		cmdObj.response.end(data);
+		processQueue();
+	});
+    	console.log("Executing command: " + cmdObj.command);
+	console.log("\nOn device with ID: " + cmdObj.deviceId)
+	deviceSocket.write(cmdObj.command);	
+	
+}
 app.use(express.static('public'));
 
 app.post('/:deviceId/name/:name', function(req, res) {
