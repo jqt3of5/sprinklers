@@ -94,8 +94,8 @@ void connectToCloud()
        //Create a command to tell the server information about this device
        CommandFactory* factory = new CommandFactory();
        ICommand * command = factory->ParseCommand(&_client, nullptr, 0);
-        command->Execute();
-        free(command);
+       command->Execute();
+       free(command);
     }
     else
     {
