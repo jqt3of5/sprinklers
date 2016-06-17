@@ -80,6 +80,7 @@ void readDataFromCloud()
       ICommand * command = factory->ParseCommand(&_client, data, total);
       command->Execute();
       free(command);
+      free(factory);
       free(data);
     }
 }
@@ -96,6 +97,7 @@ void connectToCloud()
        ICommand * command = factory->ParseCommand(&_client, nullptr, 0);
        command->Execute();
        free(command);
+       free(factory);
     }
     else
     {

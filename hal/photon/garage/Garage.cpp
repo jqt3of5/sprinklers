@@ -88,7 +88,7 @@ void Garage::UpdateTimeout(int seconds)
   _overrideTimer->changePeriod(1000 * 10 * _lightTimeoutSeconds);
 }
 
-char * Garage::GetDeviceType()
+const char * Garage::GetDeviceType()
 {
   return "garage";
 }

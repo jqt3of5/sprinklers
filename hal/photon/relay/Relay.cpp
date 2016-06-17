@@ -1,11 +1,6 @@
 #include <Particle.h>
 #include "Relay.h"
 const int EEPROM_SCHEDULE = 5;
-//relay
-struct Schedule
-{
-  char data[64];
-};
 
 /*
 void Relay::ConfigPins()

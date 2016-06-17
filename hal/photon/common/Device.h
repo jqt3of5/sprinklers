@@ -5,7 +5,7 @@ class Device
 public:
 
   virtual void ConfigPins() = 0;
-  virtual char * GetDeviceType() = 0;
+  virtual const char * GetDeviceType() = 0;
 
   const char * GetDeviceId()
   {

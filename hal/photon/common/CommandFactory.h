@@ -58,67 +58,20 @@ public:
     void Execute()
     {
         char * ident = _device->Serialize();
-        _client->println(ident);
+        _client->write(ident);
     }
     private :
     Device * _device;
 };
-/*class RelayCommand : public Command, public ICommandFactory
-{
-    public:
-    char * GetCommandPrefix()
-    {
-        char * cmdPrefix = new char[2]{'R'};
-        return cmdPrefix;
-    }
-    ICommand * CreateCommand(TCPClient * client, char *data, int len)
-    {
-        Command * command = new GarageDoorCommand();
-        command->client = client;
-        command->ParseCommand(data, len);
-        return command;
-    }
-    ICommand * ParseCommand(char *data, int len)
-    {
-        _cmd = strtok(data, " ");
-        _subcmd = strtok(nullptr, " ");
-
-        if (!strcmp(subcmd, "S"))
-        {
-            int cmdPrefixLen = strlen(_cmd) + strlen(_subcmd) + 2;
-            if (cmdPrefixLen < len)
-            {
-                _schedule = new char[len-cmdPrefixLen]();
-                memcpy(_schedule, data + cmdPrefixLen, len-cmdPrefixLen);
-            }
-        }
-        else
-        {
-            return Command::ParseCommand(data, len);
-        }
-    }
-    void Execute()
-    {
-
-    }
-
-    private:
-    char * _schedule;
-}*/
 
 class NullCommand : public Command
 {
-    void Execute()
-    {
-
-    }
+    void Execute() {}
 };
 
 class CommandFactory
 {
     public:
-    //static CommandFactory * Instance = new CommandFactory();
-    //CommandFactory(){}
     ICommand * ParseCommand(TCPClient * client, char * data, int len)
     {
         if (data == nullptr || len == 0)

@@ -7,3 +7,10 @@ class Relay : public Device
 
   char * GetDeviceType();
 };*/
+
+//relay
+struct Schedule
+{
+  char data[64];
+};
+
