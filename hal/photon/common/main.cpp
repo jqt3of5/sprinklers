@@ -6,7 +6,6 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
 #include <softap_http.h>
 #include "http.h"
 #include "CommandFactory.h"
-#include "Garage.h"
 
 const byte CURRENT_VERSION = 0;
 const int EEPROM_VERSION = 0;
@@ -16,7 +15,6 @@ const int EEPROM_HOST_ADDR = 1;
 
 STARTUP(softap_set_application_page_handler(http_handler, nullptr));
 
-IDevice * _device;
 bool _connected = false;
 TCPClient _client;
 void setup()

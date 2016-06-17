@@ -3,7 +3,6 @@
 class Garage : public Device
 {
 public:
-  static Garage * Instance = new Garage();
 
   void ConfigPins();
   char * GetDeviceType();

@@ -2,8 +2,8 @@
 class Device
 {
 public:
-  virtual void ConfigPins() = 0;
 
+  virtual void ConfigPins() = 0;
   virtual char * GetDeviceType() = 0;
   
   char * GetDeviceId()
@@ -26,8 +26,5 @@ public:
     return result; 
   }
   protected:
-  Garage()
-  {
-    ConfigPins();
-  }
+  
 };

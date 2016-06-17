@@ -28,7 +28,7 @@ class Command : public ICommand
             return this;
         }
     protected:
-    TCPClient * client;
+    TCPClient * _client;
     char * _cmd;
     char * _subcmd;
     char * _args[10];
@@ -46,14 +46,14 @@ class GarageDoorCommand : public Command, public ICommandFactory
     ICommand * CreateCommand(char *data, int len)
     {
         Command * command = new GarageDoorCommand();
-        command->client = client;
+        command->_client = client;
         command->ParseCommand(data, len);
         return command;
     }
    
     void Execute()
     {
-        Garage * garage = Garage::Instance;
+        Garage * garage = new Garage();
         char * response = nullptr;
         if (!strcmp(_subCmd,"T")) //toggle
           {
@@ -63,6 +63,7 @@ class GarageDoorCommand : public Command, public ICommandFactory
           {
             int state = garage->DoorState();
           }
+          free(garage);
     }
 }
 
@@ -77,14 +78,14 @@ class GarageLightCommand : public Command, public ICommandFactory
      ICommand * CreateCommand(TCPClient * client, char *data, int len)
     {
         Command * command = new GarageDoorCommand();
-        command->client = client;
+        command->_client = client;
         command->ParseCommand(data, len);
         return command;
     }
     
     void Execute()
     {
-        Garage * garage = Garage::Instance;
+        Garage * garage = new Garage();
         char * response = nullptr;
         if (!strcmp(_subCmd,"T")) //toggle
           {
@@ -98,27 +99,27 @@ class GarageLightCommand : public Command, public ICommandFactory
           {
             garage->UpdateTimeout(atoi(args[0]));
           }
+          free(garage);
     }
 }
 
-class GarageIdentCommand : public Command, public ICommandFactory
+class DeviceIdentCommand : public Command
 {
-    char * GetCommandPrefix()
+    ICommand * CreateCommand(TCPClient * client, Device * device)
     {
-        return nullptr;
-    }
-    ICommand * CreateCommand(TCPClient * client, char *data, int len)
-    {
-        Command * command = new GarageIdentCommand();
-        command->client = client;
+        DeviceIdentCommand * command = new DeviceIdentCommand();
+        command->_client = client;
+        command->_device = device;
         return command;
     }
     
     void Execute()
     {
-         char * ident = Garage::Instance->Serialize();
-         _client->println(ident);
+        char * ident = _device->Serialize();
+        _client->println(ident);
     }
+    private :
+    Device * _device;
 }
 /*class RelayCommand : public Command, public ICommandFactory
 {
@@ -180,7 +181,7 @@ class CommandFactory
     {
         if (data == nullptr || len = 0)
         {
-            return new GarageIdentCommand()->CreateCommand(client, data, len);
+            return new DeviceIdentCommand()->CreateCommand(client,new Garage());
         }
         
         char * cmd = strtok(data, " ");
