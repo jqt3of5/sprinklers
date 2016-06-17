@@ -63,22 +63,30 @@ function handleHttpRequest(endpoint, req, res)
 	else
         {
 	    var cmd = endpoint.createCommand(req.params, req.body);
+	    console.log("pushing command: " + cmd);
 	    cmdQueue.push({deviceId:deviceId, command:cmd, response:res});
+	    if (isProcessingQueue)
+	    {
+		console.log("Queue already in process");
+		return;
+	    }
+
 	    processQueue();
 	}
 }
+
+//The Photon can only handle a single command at a time. So we need to queue them up, so that they can be executed synchrnously. 
 var cmdQueue = [];
 var isProcessingQueue = false;
 function processQueue()
 {
-	if (isProcessingQueue)
-	{
-		return;
-	}
+
+        console.log("Start Processing queue");
 	var cmdObj = cmdQueue.pop();
 	if (cmdObj == undefined)
-	{
-		isPrcessingQueue = false;
+    {
+	        console.log("no commands in the queue. ");
+		isProcessingQueue = false;
 		return;
 	}
 	
@@ -123,7 +131,7 @@ var device_infos = {};
 var device_sockets = {};
 var socket_server = net.createServer(function (socket)
 {
-	socket.setKeepAlive(true, 60000);
+	socket.setKeepAlive(true, 6000);
 	socket.once('data', function (data)
 	{
 		var device_info = JSON.parse(data);
@@ -136,9 +144,10 @@ var socket_server = net.createServer(function (socket)
 	
 	socket.on('close', function ()
 	{
-		var deviceInfo = device_infos[socket.deviceId];
-		device_infos[socket.deviceId] = undefined;
-		device_infos[deviceInfo.name] = undefined;
+	    var deviceInfo = device_infos[socket.deviceId];
+	    device_infos[socket.deviceId] = undefined;
+	    device_infos[deviceInfo.name] = undefined;
+	    console.log("Device disconnected: " + deviceInfo.deviceId);
 	});
 });
 
