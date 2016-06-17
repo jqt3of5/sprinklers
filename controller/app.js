@@ -15,6 +15,7 @@ var fs = require('fs');
 var net = require('net');
 var uuid = require('node-uuid');
 
+/*global DeviceTypeEnum*/
 DeviceTypeEnum ={
 	Garage : "garage",
 	Temp : "temp",
@@ -61,16 +62,15 @@ function handleHttpRequest(endpoint, req, res)
 		res.status(405).end();
 	}
 	else
-        {
+    {
 	    var cmd = endpoint.createCommand(req.params, req.body);
 	    console.log("pushing command: " + cmd);
 	    cmdQueue.push({deviceId:deviceId, command:cmd, response:res});
 	    if (isProcessingQueue)
-	    {
-		console.log("Queue already in process");
-		return;
-	    }
-
+		{
+			console.log("Already processing queue");
+			return;
+		}
 	    processQueue();
 	}
 }
@@ -80,11 +80,10 @@ var cmdQueue = [];
 var isProcessingQueue = false;
 function processQueue()
 {
-
         console.log("Start Processing queue");
 	var cmdObj = cmdQueue.pop();
 	if (cmdObj == undefined)
-    {
+        {
 	        console.log("no commands in the queue. ");
 		isProcessingQueue = false;
 		return;
@@ -97,7 +96,7 @@ function processQueue()
 		cmdObj.response.end(data);
 		processQueue();
 	});
-    	console.log("Executing command: " + cmdObj.command);
+    console.log("Executing command: " + cmdObj.command);
 	console.log("\nOn device with ID: " + cmdObj.deviceId)
 	deviceSocket.write(cmdObj.command);	
 	
@@ -108,7 +107,7 @@ app.post('/:deviceId/name/:name', function(req, res) {
 	var deviceId = req.params.deviceId;
 	var name = req.params.deviceId;
 	
-	if (device_info[name] != undefined)
+	if (device_infos[name] != undefined)
 	{
 		res.status(405).end();
 		return;
