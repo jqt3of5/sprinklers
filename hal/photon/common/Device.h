@@ -1,9 +1,8 @@
 
-class IDevice
+class Device
 {
 public:
   virtual void ConfigPins() = 0;
-  virtual char * ProcessData(char * data, int count) = 0;
 
   virtual char * GetDeviceType() = 0;
   
@@ -25,5 +24,10 @@ public:
     sprintf(result, "{'%s':'%s', '%s':'%s'}", "type", type, "deviceId", deviceId);
   
     return result; 
+  }
+  protected:
+  Garage()
+  {
+    ConfigPins();
   }
 };

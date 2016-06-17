@@ -7,7 +7,7 @@ struct Schedule
   char data[64];
 };
 
-
+/*
 void Relay::ConfigPins()
 {
   pinMode(D0, OUTPUT);
@@ -62,3 +62,4 @@ char * Relay::GetDeviceType()
 {
   return "relay";
 }
+*/

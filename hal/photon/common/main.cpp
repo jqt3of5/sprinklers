@@ -5,7 +5,7 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
 #include <Particle.h>
 #include <softap_http.h>
 #include "http.h"
-//#include "IDevice.h"
+#include "CommandFactory.h"
 #include "Garage.h"
 
 const byte CURRENT_VERSION = 0;
@@ -21,8 +21,8 @@ bool _connected = false;
 TCPClient _client;
 void setup()
 {
-  _device = new Garage();
-  _device->ConfigPins();
+//  _device = new Garage();
+//  _device->ConfigPins();
 
   byte version;
   EEPROM.get(EEPROM_VERSION, version);
@@ -72,21 +72,13 @@ void readDataFromCloud()
         data[i] = _client.read();
       }
 
-      //Process Data
-      char * result = _device->ProcessData(data, total);
-      if (result != nullptr)
-      {
-        _client.println(result);  
-        free(result);
-      }
-      else
-      {
-        _client.println("OK");
-      }
-    
+      ICommand * command = CommandFactory::Instance->ParseCommand(&_client, data, total);
+      command->Execute();
+      free(command);
       free(data);
     }
 }
+
 void connectToCloud()
 {
     IpAddr ip;
@@ -94,8 +86,10 @@ void connectToCloud()
     //Try once to reconnect
     if (_client.connect(ip.addr, 8081))
     {
-       //Tell the cloud what type of device this is
-        _client.printf(_device->Serialize());
+       //Create a command to tell the server information about this device
+        ICommand * command = CommandFactory::Instance->ParseCommand(&_client, nullptr, 0);
+        command->Execute();
+        free(command);
     }
     else
     {

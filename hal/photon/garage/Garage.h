@@ -1,16 +1,23 @@
-#include "IDevice.h"
+#include "Device.h"
 
-class Garage : public IDevice
+class Garage : public Device
 {
 public:
-  Garage();
+  static Garage * Instance = new Garage();
 
   void ConfigPins();
-  char * ProcessData(char * data, int count);
-
   char * GetDeviceType();
 
+  void ToggleLight();
+  void ToggleGarage();
+  
+  int LightState();
+  int DoorState();
+  
+  void UpdateTimeout(int seconds);
+
 private:
+  
   bool _lightOverride;
   int _lightTimeoutSeconds;
   Timer * _motionTimer;
@@ -19,6 +26,4 @@ private:
   void MotionSensed();
   void LightTimedOut();
   void LightOverrideTimedOut();
-  void ToggleLight();
-  void ToggleGarage();
 };
