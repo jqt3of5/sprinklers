@@ -65,6 +65,11 @@ function handleHttpRequest(endpoint, req, res)
     {
 	    var cmd = endpoint.createCommand(req.params, req.body);
 	    cmdQueue.push({deviceId:deviceId, command:cmd, response:res});
+	    if (isProcessingQueue)
+		{
+			console.log("Already processing queue");
+			return;
+		}
 	    processQueue();
 	}
 }
@@ -72,11 +77,6 @@ var cmdQueue = [];
 var isProcessingQueue = false;
 function processQueue()
 {
-	if (isProcessingQueue)
-	{
-		console.log("Already processing queue");
-		return;
-	}
 	var cmdObj = cmdQueue.pop();
 	if (cmdObj == undefined)
 	{
