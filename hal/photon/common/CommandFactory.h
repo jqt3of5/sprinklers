@@ -1,27 +1,34 @@
+#include "Device.h"
+
 class ICommand
 {
     public:
     virtual void Execute();
-}
+};
 
 class ICommandFactory
 {
     public:
     virtual ICommand * CreateCommand(TCPClient * client, char *data, int len);
-    virtual char * GetCommandPrefix();
-}
+    virtual bool IsCommandPrefix(char * prefix);
+};
 
 class Command : public ICommand
 {
     public:
+        Command() {}
+        Command(TCPClient * client)
+        {
+          _client = client;
+        }
         virtual ICommand * ParseCommand(char * data, int len)
         {
             _cmd = strtok(data, " ");
-            _subCmd = strtok(nullptr, " ");
-  
+            _subcmd = strtok(nullptr, " ");
+
             _argc = 0;
             _args[0] = strtok(nullptr, " ");
-            for(_argc = 0; _args[_argc] != null; _argc++)
+            for(_argc = 0; _args[_argc] != nullptr; _argc++)
             {
                  _args[_argc+1] = strtok(nullptr, " ");
             }
@@ -33,86 +40,21 @@ class Command : public ICommand
     char * _subcmd;
     char * _args[10];
     int _argc;
-}
-
-class GarageDoorCommand : public Command, public ICommandFactory
-{
-    public:
-    char * GetCommandPrefix()
-    {
-        char * cmdPrefix = new char[2]{'D'};
-        return cmdPrefix;
-    }
-    ICommand * CreateCommand(char *data, int len)
-    {
-        Command * command = new GarageDoorCommand();
-        command->_client = client;
-        command->ParseCommand(data, len);
-        return command;
-    }
-   
-    void Execute()
-    {
-        Garage * garage = new Garage();
-        char * response = nullptr;
-        if (!strcmp(_subCmd,"T")) //toggle
-          {
-            garage->DoorToggle();
-          }
-        else if (!strcmp(_subCmd,"S")) //state
-          {
-            int state = garage->DoorState();
-          }
-          free(garage);
-    }
-}
-
-class GarageLightCommand : public Command, public ICommandFactory
-{
-    public:
-    char * GetCommandPrefix()
-    {
-        char * cmdPrefix = new char[2]{'L'};
-        return cmdPrefix;
-    }
-     ICommand * CreateCommand(TCPClient * client, char *data, int len)
-    {
-        Command * command = new GarageDoorCommand();
-        command->_client = client;
-        command->ParseCommand(data, len);
-        return command;
-    }
-    
-    void Execute()
-    {
-        Garage * garage = new Garage();
-        char * response = nullptr;
-        if (!strcmp(_subCmd,"T")) //toggle
-          {
-            garage->LightToggle();
-          }
-        else if (!strcmp(_subCmd,"S")) //state
-          {
-            int state = garage->LightState();
-          }
-        else if (!strcmp(_subCmd,"O")) //Update Light time out
-          {
-            garage->UpdateTimeout(atoi(args[0]));
-          }
-          free(garage);
-    }
-}
+};
 
 class DeviceIdentCommand : public Command
 {
+public:
+    DeviceIdentCommand() {}
+    DeviceIdentCommand(TCPClient * client) : Command(client) {}
+
     ICommand * CreateCommand(TCPClient * client, Device * device)
     {
-        DeviceIdentCommand * command = new DeviceIdentCommand();
-        command->_client = client;
+        DeviceIdentCommand * command = new DeviceIdentCommand(client);
         command->_device = device;
         return command;
     }
-    
+
     void Execute()
     {
         char * ident = _device->Serialize();
@@ -120,7 +62,7 @@ class DeviceIdentCommand : public Command
     }
     private :
     Device * _device;
-}
+};
 /*class RelayCommand : public Command, public ICommandFactory
 {
     public:
@@ -140,7 +82,7 @@ class DeviceIdentCommand : public Command
     {
         _cmd = strtok(data, " ");
         _subcmd = strtok(nullptr, " ");
-     
+
         if (!strcmp(subcmd, "S"))
         {
             int cmdPrefixLen = strlen(_cmd) + strlen(_subcmd) + 2;
@@ -157,9 +99,9 @@ class DeviceIdentCommand : public Command
     }
     void Execute()
     {
-        
+
     }
-    
+
     private:
     char * _schedule;
 }*/
@@ -170,27 +112,28 @@ class NullCommand : public Command
     {
 
     }
-}
+};
 
 class CommandFactory
 {
     public:
-    static CommandFactory * Instance = new CommandFactory();
-    
+    //static CommandFactory * Instance = new CommandFactory();
+    //CommandFactory(){}
     ICommand * ParseCommand(TCPClient * client, char * data, int len)
     {
-        if (data == nullptr || len = 0)
+        if (data == nullptr || len == 0)
         {
-            return new DeviceIdentCommand()->CreateCommand(client,new Garage());
+            DeviceIdentCommand * cmd = new DeviceIdentCommand();
+            return cmd->CreateCommand(client,CommandFactory::_device);
         }
-        
+
         char * cmd = strtok(data, " ");
-        
+
         int i = 0;
         ICommandFactory * factory = _factories[i];
         while (factory != nullptr)
         {
-            if (!strcmp(factory->GetCommandPrefix(), cmd))
+            if (factory->IsCommandPrefix(cmd))
             {
                 return factory->CreateCommand(client, data, len);
             }
@@ -200,6 +143,7 @@ class CommandFactory
         return new NullCommand();
     }
     private:
-    static ICommandFactory * _factories = new ICommandFactory[]{new GarageDoorCommand(), new GarageLightCommand(), nullptr};
-    CommandFactory();
-}
+    static Device * _device;
+    static ICommandFactory  *_factories[];
+
+};

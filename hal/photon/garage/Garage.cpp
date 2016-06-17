@@ -9,13 +9,13 @@
 #define REED_OPEN D0 //The reed switch that indicates the garage door is open
 #define REED_CLOSE D1 //The reed switch that indicates the garage door is closed
 
-Garage::Garage() : Device()
+Garage::Garage()
 {
   _lightOverride = false;
   _lightTimeoutSeconds = 60;
   _motionTimer = new Timer(1000 * _lightTimeoutSeconds, [this]() -> void {this->LightTimedOut();},  true);
   _overrideTimer = new Timer(1000 * 10 * _lightTimeoutSeconds, [this]() -> void {this->LightOverrideTimedOut();},  true);
-  _garageDoorPulseTimer = new Timer(500, []() -> {digitalWrite(GARAGE_SWITCH, LOW);});
+  _garageDoorPulseTimer = new Timer(500, []() -> void {digitalWrite(GARAGE_SWITCH, LOW);});
 }
 
 void Garage::ConfigPins()
@@ -32,7 +32,7 @@ void Garage::ConfigPins()
   attachInterrupt(LIGHT_BUTTON, [this]() -> void {this->ToggleLight();}, RISING);
   //Garage Toggle Button
   pinMode(GARAGE_BUTTON, INPUT_PULLDOWN);
-  attachInterrupt(LIGHT_BUTTON, [this]() -> void {this->ToggleGarage();}, RISING);
+  attachInterrupt(LIGHT_BUTTON, [this]() -> void {this->ToggleDoor();}, RISING);
   //motion
   pinMode(MOTION_INPUT, INPUT_PULLDOWN);
   attachInterrupt(MOTION_INPUT,[this]() -> void {this->MotionSensed();}, RISING);
@@ -50,7 +50,7 @@ void Garage::LightOverrideTimedOut()
 {
   _lightOverride = false;
   LightTimedOut();
-  
+
 }
 void Garage::MotionSensed()
 {
@@ -65,7 +65,7 @@ void Garage::ToggleLight()
   _overrideTimer->startFromISR();
 }
 
-void Garage::ToggleGarage()
+void Garage::ToggleDoor()
 {
   digitalWrite(GARAGE_SWITCH, HIGH);
  _garageDoorPulseTimer->startFromISR();

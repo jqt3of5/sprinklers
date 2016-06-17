@@ -1,30 +1,32 @@
-
+#ifndef DEVICE_H
+#define DEVICE_H
 class Device
 {
 public:
 
   virtual void ConfigPins() = 0;
   virtual char * GetDeviceType() = 0;
-  
-  char * GetDeviceId()
+
+  const char * GetDeviceId()
   {
     return spark_deviceID().c_str();
   }
-  
+
   char * Serialize()
   {
-    char * devTag = "deviceId";
-    char * deviceId = GetDeviceId();
-    char * typeTag = "type";
-    char * type = GetDeviceType();
-    int len = strlen(devTag) + strlen(deviceId) 
+    const char * devTag = "deviceId";
+    const char * deviceId = GetDeviceId();
+    const char * typeTag = "type";
+    const char * type = GetDeviceType();
+    int len = strlen(devTag) + strlen(deviceId)
             + strlen(typeTag) + strlen(type);
-    
+
     char * result = new char[2*len];
     sprintf(result, "{'%s':'%s', '%s':'%s'}", "type", type, "deviceId", deviceId);
-  
-    return result; 
+
+    return result;
   }
   protected:
-  
+
 };
+#endif

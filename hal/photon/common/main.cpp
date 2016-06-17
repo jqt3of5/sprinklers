@@ -1,11 +1,17 @@
 #pragma SPARK_NO_PREPROCESSOR
 
-SYSTEM_MODE(SEMI_AUTOMATIC);
-
 #include <Particle.h>
 #include <softap_http.h>
 #include "http.h"
 #include "CommandFactory.h"
+#include "GarageCommands.h"
+
+//Define the type of device, and the available commands for this device.
+//TODO: Make this more dynamic.
+ICommandFactory  * CommandFactory::_factories[] = {new GarageDoorCommand(), new GarageLightCommand(), nullptr};
+Device * CommandFactory::_device = new Garage();
+
+SYSTEM_MODE(SEMI_AUTOMATIC);
 
 const byte CURRENT_VERSION = 0;
 const int EEPROM_VERSION = 0;
@@ -15,13 +21,13 @@ const int EEPROM_HOST_ADDR = 1;
 
 STARTUP(softap_set_application_page_handler(http_handler, nullptr));
 
+void readDataFromCloud();
+void connectToCloud();
+
 bool _connected = false;
 TCPClient _client;
 void setup()
 {
-//  _device = new Garage();
-//  _device->ConfigPins();
-
   byte version;
   EEPROM.get(EEPROM_VERSION, version);
   if (version == CURRENT_VERSION)
@@ -40,7 +46,7 @@ void setup()
     //TODO: Migrate somehow?
     EEPROM.put(EEPROM_VERSION, CURRENT_VERSION);
   }
-  //Error state. 
+  //Error state.
   WiFi.listen();
 }
 
@@ -49,7 +55,7 @@ void loop()
   if (_client.connected())
   {
     readDataFromCloud();
-    //TODO: Write data to cloud. Events/etc. 
+    //TODO: Write data to cloud. Events/etc.
   }
   //It is supposed to be connected to the cloud, but at this point isn't
   else if (_connected)
@@ -70,7 +76,8 @@ void readDataFromCloud()
         data[i] = _client.read();
       }
 
-      ICommand * command = CommandFactory::Instance->ParseCommand(&_client, data, total);
+      CommandFactory* factory = new CommandFactory();
+      ICommand * command = factory->ParseCommand(&_client, data, total);
       command->Execute();
       free(command);
       free(data);
@@ -85,7 +92,8 @@ void connectToCloud()
     if (_client.connect(ip.addr, 8081))
     {
        //Create a command to tell the server information about this device
-        ICommand * command = CommandFactory::Instance->ParseCommand(&_client, nullptr, 0);
+       CommandFactory* factory = new CommandFactory();
+       ICommand * command = factory->ParseCommand(&_client, nullptr, 0);
         command->Execute();
         free(command);
     }
