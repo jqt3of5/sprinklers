@@ -74,11 +74,13 @@ function processQueue()
 {
 	if (isProcessingQueue)
 	{
+		console.log("Already processing queue");
 		return;
 	}
 	var cmdObj = cmdQueue.pop();
 	if (cmdObj == undefined)
 	{
+		console.log("Finished processing data");
 		isProcessingQueue = false;
 		return;
 	}
@@ -90,7 +92,7 @@ function processQueue()
 		cmdObj.response.end(data);
 		processQueue();
 	});
-    	console.log("Executing command: " + cmdObj.command);
+    console.log("Executing command: " + cmdObj.command);
 	console.log("\nOn device with ID: " + cmdObj.deviceId)
 	deviceSocket.write(cmdObj.command);	
 	
