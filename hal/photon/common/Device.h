@@ -4,6 +4,8 @@ class Device
 {
 public:
 
+  Device() { ConfigPins(); }
+  
   virtual void ConfigPins() = 0;
   virtual const char * GetDeviceType() = 0;
 
