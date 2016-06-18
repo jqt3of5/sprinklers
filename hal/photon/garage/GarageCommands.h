@@ -25,10 +25,21 @@ class GarageDoorCommand : public Command, public ICommandFactory
         if (!strcmp(_subcmd,"T")) //toggle
           {
             garage->ToggleDoor();
+            _client->write("OK");
           }
         else if (!strcmp(_subcmd,"S")) //state
           {
             int state = garage->DoorState();
+            char * stateStr = new char[15];
+            sprintf(stateStr, "{\"state\":%d}", state);
+            _client->write(stateStr);
+            free(stateStr);
+          }
+          else
+          {
+              _client->write(_cmd);
+              _client->write(_subcmd);
+              //_client->stop();
           }
           free(garage);
     }
@@ -42,12 +53,12 @@ class GarageLightCommand : public Command, public ICommandFactory
 
       bool IsCommandPrefix(char * prefix)
       {
-        return !strcmp(prefix, "D");
+        return !strcmp(prefix, "L");
       }
 
      ICommand * CreateCommand(TCPClient * client, char *data, int len)
       {
-          Command * command = new GarageDoorCommand(client);
+          Command * command = new GarageLightCommand(client);
           command->ParseCommand(data, len);
           return command;
       }
@@ -59,15 +70,27 @@ class GarageLightCommand : public Command, public ICommandFactory
           if (!strcmp(_subcmd,"T")) //toggle
             {
               garage->ToggleLight();
+              _client->write("OK");
             }
           else if (!strcmp(_subcmd,"S")) //state
             {
               int state = garage->LightState();
+              char * stateStr = new char[15];
+              sprintf(stateStr, "{\"state\":%d}", state);
+              _client->write(stateStr);
+              free (stateStr);
             }
           else if (!strcmp(_subcmd,"O")) //Update Light time out
             {
               garage->UpdateTimeout(atoi(_args[0]));
+              _client->write("OK");
             }
+          else
+          {
+              _client->write(_cmd);
+              _client->write(_subcmd);
+            //  _client->stop();
+          }
             free(garage);
       }
 };

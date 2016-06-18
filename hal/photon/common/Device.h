@@ -3,7 +3,6 @@
 class Device
 {
 public:
-
   virtual void ConfigPins() = 0;
   virtual const char * GetDeviceType() = 0;
 
@@ -22,7 +21,8 @@ public:
             + strlen(typeTag) + strlen(type);
 
     char * result = new char[2*len];
-    sprintf(result, "{'%s':'%s', '%s':'%s'}", "type", type, "deviceId", deviceId);
+    sprintf(result, "{\"%s\":\"%s\", \"%s\":\"%s\"}", "type", type, "deviceId", deviceId);
+
 
     return result;
   }

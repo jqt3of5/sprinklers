@@ -11,6 +11,7 @@
 
 Garage::Garage()
 {
+  ConfigPins();
   _lightOverride = false;
   _lightTimeoutSeconds = 60;
   _motionTimer = new Timer(1000 * _lightTimeoutSeconds, [this]() -> void {this->LightTimedOut();},  true);
@@ -32,7 +33,7 @@ void Garage::ConfigPins()
   attachInterrupt(LIGHT_BUTTON, [this]() -> void {this->ToggleLight();}, RISING);
   //Garage Toggle Button
   pinMode(GARAGE_BUTTON, INPUT_PULLDOWN);
-  attachInterrupt(LIGHT_BUTTON, [this]() -> void {this->ToggleDoor();}, RISING);
+  attachInterrupt(GARAGE_BUTTON, [this]() -> void {this->ToggleDoor();}, RISING);
   //motion
   pinMode(MOTION_INPUT, INPUT_PULLDOWN);
   attachInterrupt(MOTION_INPUT,[this]() -> void {this->MotionSensed();}, RISING);
@@ -54,7 +55,7 @@ void Garage::LightOverrideTimedOut()
 }
 void Garage::MotionSensed()
 {
-  digitalWrite(LIGHT_SWITCH, digitalRead(LIGHT_BUTTON));
+  digitalWrite(LIGHT_SWITCH, HIGH);
   _motionTimer->startFromISR();
 }
 
@@ -90,5 +91,7 @@ void Garage::UpdateTimeout(int seconds)
 
 const char * Garage::GetDeviceType()
 {
-  return "garage";
+  char * str = new char[7];
+  strcpy(str, "garage");
+  return str;
 }
