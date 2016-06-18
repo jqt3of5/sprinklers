@@ -37,9 +37,7 @@ class GarageDoorCommand : public Command, public ICommandFactory
           }
           else
           {
-              _client->write(_cmd);
-              _client->write(_subcmd);
-              //_client->stop();
+            _client->stop();
           }
           free(garage);
     }
@@ -87,9 +85,7 @@ class GarageLightCommand : public Command, public ICommandFactory
             }
           else
           {
-              _client->write(_cmd);
-              _client->write(_subcmd);
-            //  _client->stop();
+              _client->stop();
           }
             free(garage);
       }

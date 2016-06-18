@@ -81,8 +81,10 @@ class CommandFactory
     {
         if (data == nullptr || len == 0)
         {
-            DeviceIdentCommand * cmd = new DeviceIdentCommand();
-            return cmd->CreateCommand(client,CommandFactory::_device);
+            DeviceIdentCommand * commandFactory = new DeviceIdentCommand();
+            ICommand * command = commandFactory->CreateCommand(client,CommandFactory::_device);
+            free(commandFactory);
+            return command;
         }
 
         char cmd[15] = {0};
