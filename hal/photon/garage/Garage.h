@@ -8,7 +8,7 @@ public:
 
   Garage();
   void ConfigPins();
-  char * GetDeviceType();
+  const char * GetDeviceType();
 
   void ToggleLight();
   void ToggleDoor();

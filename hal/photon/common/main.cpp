@@ -11,7 +11,7 @@
 ICommandFactory  * CommandFactory::_factories[] = {new GarageDoorCommand(), new GarageLightCommand(), nullptr};
 Device * CommandFactory::_device = new Garage();
 
-SYSTEM_MODE(SEMI_AUTOMATIC);
+//SYSTEM_MODE(SEMI_AUTOMATIC);
 
 const byte CURRENT_VERSION = 0;
 const int EEPROM_VERSION = 0;

@@ -66,7 +66,12 @@ public:
 
 class NullCommand : public Command
 {
-    void Execute() {}
+public:
+    NullCommand(TCPClient * client) : Command(client) {}
+    void Execute()
+    {
+        _client->stop();
+    }
 };
 
 class CommandFactory
@@ -80,7 +85,8 @@ class CommandFactory
             return cmd->CreateCommand(client,CommandFactory::_device);
         }
 
-        char * cmd = strtok(data, " ");
+        char cmd[15] = {0};
+        sscanf(data, "%s", cmd);
 
         int i = 0;
         ICommandFactory * factory = _factories[i];
@@ -93,7 +99,7 @@ class CommandFactory
             i++;
             factory = _factories[i];
         }
-        return new NullCommand();
+        return new NullCommand(client);
     }
     private:
     static Device * _device;
