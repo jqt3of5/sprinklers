@@ -1,12 +1,17 @@
 #pragma SPARK_NO_PREPROCESSOR
 
-SYSTEM_MODE(SEMI_AUTOMATIC);
-
 #include <Particle.h>
 #include <softap_http.h>
 #include "http.h"
-//#include "IDevice.h"
-#include "Garage.h"
+#include "CommandFactory.h"
+#include "GarageCommands.h"
+
+//Define the type of device, and the available commands for this device.
+//TODO: Make this more dynamic.
+ICommandFactory  * CommandFactory::_factories[] = {new GarageDoorCommand(), new GarageLightCommand(), nullptr};
+Device * CommandFactory::_device = new Garage();
+
+//SYSTEM_MODE(SEMI_AUTOMATIC);
 
 const byte CURRENT_VERSION = 0;
 const int EEPROM_VERSION = 0;
@@ -16,14 +21,13 @@ const int EEPROM_HOST_ADDR = 1;
 
 STARTUP(softap_set_application_page_handler(http_handler, nullptr));
 
-IDevice * _device;
+void readDataFromCloud();
+void connectToCloud();
+
 bool _connected = false;
 TCPClient _client;
 void setup()
 {
-  _device = new Garage();
-  _device->ConfigPins();
-
   byte version;
   EEPROM.get(EEPROM_VERSION, version);
   if (version == CURRENT_VERSION)
@@ -42,7 +46,7 @@ void setup()
     //TODO: Migrate somehow?
     EEPROM.put(EEPROM_VERSION, CURRENT_VERSION);
   }
-  //Error state. 
+  //Error state.
   WiFi.listen();
 }
 
@@ -51,7 +55,7 @@ void loop()
   if (_client.connected())
   {
     readDataFromCloud();
-    //TODO: Write data to cloud. Events/etc. 
+    //TODO: Write data to cloud. Events/etc.
   }
   //It is supposed to be connected to the cloud, but at this point isn't
   else if (_connected)
@@ -72,21 +76,15 @@ void readDataFromCloud()
         data[i] = _client.read();
       }
 
-      //Process Data
-      char * result = _device->ProcessData(data, total);
-      if (result != nullptr)
-      {
-        _client.println(result);  
-        free(result);
-      }
-      else
-      {
-        _client.println("OK");
-      }
-    
+      CommandFactory* factory = new CommandFactory();
+      ICommand * command = factory->ParseCommand(&_client, data, total);
+      command->Execute();
+      free(command);
+      free(factory);
       free(data);
     }
 }
+
 void connectToCloud()
 {
     IpAddr ip;
@@ -94,8 +92,12 @@ void connectToCloud()
     //Try once to reconnect
     if (_client.connect(ip.addr, 8081))
     {
-       //Tell the cloud what type of device this is
-        _client.printf(_device->Serialize());
+       //Create a command to tell the server information about this device
+       CommandFactory* factory = new CommandFactory();
+       ICommand * command = factory->ParseCommand(&_client, nullptr, 0);
+       command->Execute();
+       free(command);
+       free(factory);
     }
     else
     {

@@ -97,7 +97,7 @@ function processQueue()
 		processQueue();
 	});
     console.log("Executing command: " + cmdObj.command);
-	console.log("\nOn device with ID: " + cmdObj.deviceId)
+	console.log("On device with ID: " + cmdObj.deviceId)
 	deviceSocket.write(cmdObj.command);	
 	
 }
