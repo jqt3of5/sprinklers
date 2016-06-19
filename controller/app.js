@@ -143,10 +143,12 @@ var socket_server = net.createServer(function (socket)
 	
 	socket.on('close', function ()
 	{
-	    var deviceInfo = device_infos[socket.deviceId];
-	    device_infos[socket.deviceId] = undefined;
-	    device_infos[deviceInfo.name] = undefined;
-	    console.log("Device disconnected: " + deviceInfo.deviceId);
+		console.log("Device disconnected: " + socket.deviceId);
+		var deviceInfo = device_infos[socket.deviceId];
+		cmdQueue = [];
+		isProcessingQueue = false;
+		device_infos[socket.deviceId] = undefined;
+		device_infos[deviceInfo.name] = undefined;
 	});
 });
 
