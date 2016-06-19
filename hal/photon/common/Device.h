@@ -11,7 +11,10 @@ public:
 
   const char * GetDeviceId()
   {
-    return spark_deviceID().c_str();
+    char * tempId = spark_deviceID().c_str();
+    char * id = new char[strlen(tempId) + 1];
+    strcpy(id, tempId);
+    return id;
   }
 
   char * Serialize()
