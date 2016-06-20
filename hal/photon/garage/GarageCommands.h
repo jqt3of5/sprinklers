@@ -20,7 +20,7 @@ class GarageDoorCommand : public Command, public ICommandFactory
 
     void Execute()
     {
-        Garage * garage = new Garage();
+        Garage * garage = Garage::Instance;
         char * response = nullptr;
         if (!strcmp(_subcmd,"T")) //toggle
           {
@@ -30,16 +30,15 @@ class GarageDoorCommand : public Command, public ICommandFactory
         else if (!strcmp(_subcmd,"S")) //state
           {
             int state = garage->DoorState();
-            char * stateStr = new char[15];
+            char stateStr[30] = {0};
             sprintf(stateStr, "{\"state\":%d, \"mem\":%d}", state, System.freeMemory());
             _client->write(stateStr);
-            free(stateStr);
+
           }
           else
           {
             _client->stop();
           }
-          free(garage);
     }
 };
 
@@ -63,7 +62,7 @@ class GarageLightCommand : public Command, public ICommandFactory
 
       void Execute()
       {
-          Garage * garage = new Garage();
+          Garage * garage = Garage::Instance;
           char * response = nullptr;
           if (!strcmp(_subcmd,"T")) //toggle
             {
@@ -73,10 +72,9 @@ class GarageLightCommand : public Command, public ICommandFactory
           else if (!strcmp(_subcmd,"S")) //state
             {
               int state = garage->LightState();
-              char * stateStr = new char[15];
+              char stateStr[30] = {0};
               sprintf(stateStr, "{\"state\":%d, \"mem\":%d}", state, System.freeMemory());
               _client->write(stateStr);
-              free (stateStr);
             }
           else if (!strcmp(_subcmd,"O")) //Update Light time out
             {
@@ -87,6 +85,5 @@ class GarageLightCommand : public Command, public ICommandFactory
           {
               _client->stop();
           }
-            free(garage);
       }
 };

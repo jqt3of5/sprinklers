@@ -9,6 +9,7 @@
 #define REED_OPEN D0 //The reed switch that indicates the garage door is open
 #define REED_CLOSE D1 //The reed switch that indicates the garage door is closed
 
+Garage* Garage::Instance = new Garage();
 Garage::Garage()
 {
   ConfigPins();
