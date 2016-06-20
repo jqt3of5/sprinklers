@@ -31,7 +31,7 @@ class GarageDoorCommand : public Command, public ICommandFactory
           {
             int state = garage->DoorState();
             char * stateStr = new char[15];
-            sprintf(stateStr, "{\"state\":%d}", state);
+            sprintf(stateStr, "{\"state\":%d, \"mem\":%d}", state, System.freeMemory());
             _client->write(stateStr);
             free(stateStr);
           }
@@ -74,7 +74,7 @@ class GarageLightCommand : public Command, public ICommandFactory
             {
               int state = garage->LightState();
               char * stateStr = new char[15];
-              sprintf(stateStr, "{\"state\":%d}", state);
+              sprintf(stateStr, "{\"state\":%d, \"mem\":%d}", state, System.freeMemory());
               _client->write(stateStr);
               free (stateStr);
             }

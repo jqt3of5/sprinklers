@@ -59,6 +59,7 @@ public:
     {
         char * ident = _device->Serialize();
         _client->write(ident);
+        free(ident);
     }
     private :
     Device * _device;
@@ -77,13 +78,12 @@ public:
 class CommandFactory
 {
     public:
-    ICommand * ParseCommand(TCPClient * client, char * data, int len)
+    static ICommand * ParseCommand(TCPClient * client, char * data, int len)
     {
         if (data == nullptr || len == 0)
         {
-            DeviceIdentCommand * commandFactory = new DeviceIdentCommand();
-            ICommand * command = commandFactory->CreateCommand(client,CommandFactory::_device);
-            free(commandFactory);
+            DeviceIdentCommand commandFactory;
+            ICommand * command = commandFactory.CreateCommand(client,CommandFactory::_device);
             return command;
         }
 

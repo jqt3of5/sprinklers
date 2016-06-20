@@ -76,11 +76,10 @@ void readDataFromCloud()
         data[i] = _client.read();
       }
 
-      CommandFactory* factory = new CommandFactory();
-      ICommand * command = factory->ParseCommand(&_client, data, total);
+      CommandFactory factory;
+      ICommand * command = factory.ParseCommand(&_client, data, total);
       command->Execute();
       free(command);
-      free(factory);
       free(data);
     }
 }
@@ -93,11 +92,10 @@ void connectToCloud()
     if (_client.connect(ip.addr, 8081))
     {
        //Create a command to tell the server information about this device
-       CommandFactory* factory = new CommandFactory();
-       ICommand * command = factory->ParseCommand(&_client, nullptr, 0);
+       CommandFactory factory;
+       ICommand * command = factory.ParseCommand(&_client, nullptr, 0);
        command->Execute();
        free(command);
-       free(factory);
     }
     else
     {
