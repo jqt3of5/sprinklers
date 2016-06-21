@@ -42,6 +42,12 @@ void Garage::ConfigPins()
 
 void Garage::LightTimedOut()
 {
+  //If the Motion detection is high, then we do not want the light to turn off. So just restart the timer
+  if (digitalRead(MOTION_INPUT))
+  {
+    _motionTimer->startFromISR();
+    return;
+  }
   if (!_lightOverride)
   {
     digitalWrite(LIGHT_SWITCH, LOW);
