@@ -23,18 +23,32 @@ class Command : public ICommand
         }
         virtual ICommand * ParseCommand(char * data, int len)
         {
-            _cmd = strtok(data, " ");
-            _subcmd = strtok(nullptr, " ");
-
+            int offset = 0;
+            ParseCommandPart(data, len);
+            offset += strlen(_cmd) + 1;
+            offset += strlen(_subcmd) + 1;
+            
             _argc = 0;
-            _args[0] = strtok(nullptr, " ");
+            _args[0] = ParseNextArg(0, data + _offset, len-_offset);
+            offset += strlen(_args[0]) + 1;
             for(_argc = 0; _args[_argc] != nullptr; _argc++)
             {
-                 _args[_argc+1] = strtok(nullptr, " ");
+                 _args[_argc+1] = ParseNextArg(_argc+1, data + _offset, len-_offset);
+                 offset += strlen(_args[_argc+1]) + 1;
             }
             return this;
         }
     protected:
+    virtual void ParseCommandPart(char * data, int len)
+    {
+        _cmd = strtok(data, " ");
+        _subcmd = strtok(nullptr, " ");
+    }
+    virtual char * ParseNextArg(int index, char * data, int len)
+    {
+        return strtok(nullptr, " ");
+    }
+    
     TCPClient * _client;
     char * _cmd;
     char * _subcmd;
