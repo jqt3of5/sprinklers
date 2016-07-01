@@ -120,6 +120,10 @@ app.post('/:deviceId/name/:name', function(req, res) {
 app.get('/devices', function(req, res) {
 	res.end(JSON.stringify(device_infos));
 });
+app.get('/events/:deviceId', function(req, res) {
+	var deviceId = req.params.deviceId;
+	res.end(JSON.stringify(event_infos[deviceId]));
+});
 
 var http_server = app.listen(8080, function(){
     console.log("Http Server Started");			
@@ -136,7 +140,7 @@ var socket_server = net.createServer(function (socket)
 		var device_info = JSON.parse(data);
 		//When the device first connects, it should send an object describing itself. name/type
 		socket.deviceId = device_info.deviceId;
-		device_infos[device_info.deviceId] = {type:device_info.type, deviceId:device_info.deviceId, name:undefined};
+		device_infos[device_info.deviceId] = {type:device_info.type, deviceId:device_info.deviceId, name:"", state:{}};
 		device_sockets[device_info.deviceId] = socket;
 		console.log("Device connected: " + device_info.deviceId);
 	});
@@ -153,5 +157,27 @@ var socket_server = net.createServer(function (socket)
 });
 
 socket_server.listen(8081, function(){ console.log("Socket Server Started")});
+
+var event_log = {}
+var event_server = net.createServer(function(socket)
+{
+	socket.once('data', function(data)
+	{
+		console.log("Device Event: " + data);
+		var eventInfo = JSON.parse(data);
+		if (event_log[eventInfo.deviceId] == undefined)
+		{
+			event_log[eventInfo.deviceId] = [];
+		}
+		event_log[eventInfo.deviceId].push(eventInfo);
+		
+		var deviceInfo = device_infos[eventInfo.deviceId];
+		
+		var deviceState = deviceInfo.state;
+		
+		
+	});	
+});
+event_server.listen(8082, function(){ console.log("Event Server Started")});
 
 
