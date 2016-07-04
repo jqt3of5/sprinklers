@@ -2,13 +2,14 @@
 #include "Relay.h"
 const int EEPROM_SCHEDULE = 5;
 
-Relay * Relay::Instance = new Relay();
+//TODO: These singletons step on each other. Figure out a way to get them to get along. 
+Relay * Relay::Instance = nullptr;//new Relay();
 
 Relay::Relay()
 {
   ConfigPins();
   ReadSchedule();
-  _runSchedule = new Timer(60000, [this]()->{this->RunSchedule()});
+  _runSchedule = new Timer(60000, [this]()-> void {this->RunSchedule();});
 }
 
 void Relay::ConfigPins()
@@ -28,9 +29,9 @@ void Relay::RunSchedule()
   int currentTime = Time.hour() * 60 + Time.minute();
   for (int i = 0; i < 10; ++i)
   {
-    Zone & zone = _schedule.zoneSchedules[i];
+    Zone & zone = _schedule.zones[i];
     //Make sure this schedule object is real
-    if (zone.zone != -1 && _schedule )
+    if (zone.zone != 0xFF)
     {
       //Make sure that we are on the correct day of the week.
       //Unless it isn't set
@@ -48,16 +49,18 @@ void Relay::RunSchedule()
   }
 }
 
-char * Relay::GetDeviceType()
+const char * Relay::GetDeviceType()
 {
-  return "relay";
+  char * str = new char[7];
+  strcpy(str, "relay");
+  return str;
 }
 
-unint8_t * Relay::ReadSchedule()
+uint8_t * Relay::ReadSchedule()
 {
   uint8_t count = EEPROM.read(EEPROM_SCHEDULE);
   int byteCount = count * sizeof(Zone);
-  uint8_t * data = new unint8_t[byteCount+1];
+  uint8_t * data = new uint8_t[byteCount+1];
   data[0] = count;
   if (count != 0xFF)
   {
@@ -67,36 +70,31 @@ unint8_t * Relay::ReadSchedule()
     }
   }
 
-  SetSchedule(data);
+  SetSchedule(data, count);
   return data;
 }
 
-void Relay::SaveSchedule(unint8_t * data)
+void Relay::SaveSchedule(uint8_t * data, int len)
 {
-  uint8_t count = data[0] * sizeof(Zone);
+  uint8_t count = len / sizeof(Zone);
 
-  EEPROM.write(EEPROM_SCHEDULE, data[0]);
-  for (int i = 0; i < count; ++i)
+  EEPROM.write(EEPROM_SCHEDULE, count);
+  for (int i = 0; i < len; ++i)
   {
-    EEPROM.write(EEPROM_SCHEDULE + i + 1, data[i])
+    EEPROM.write(EEPROM_SCHEDULE + i + 1, data[i]);
   }
 
-  SetSchedule(data);
+  SetSchedule(data, count);
 }
 
-void Relay::SetSchedule(unint8_t * data)
+void Relay::SetSchedule(uint8_t * data, uint8_t count)
 {
-    unint8_t count = data[0];
+    free(_schedule.zones);
 
-    for (int i = 0; i < _schedule.numberOfZones; ++i)
-    {
-      free(_schedule.zones[i]);
-    }
     _schedule.numberOfZones = count;
 
     _schedule.zones = new Zone[count];
     memcpy(_schedule.zones, data + 1, count * sizeof(Zone));
-
 }
 
 void Relay::ToggleRelay(int pin)
@@ -109,12 +107,12 @@ int Relay::RelayState(int pin)
   return digitalRead(pin);
 }
 
-void SetDelay(int hours)
+void Relay::SetDelay(int hours)
 {
   _delay = hours * 60;
 }
 
-void EnableSchedule(bool enabled)
+void Relay::EnableSchedule(bool enabled)
 {
   _isScheduleEnabled = enabled;
 }

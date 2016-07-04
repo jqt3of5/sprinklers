@@ -9,7 +9,7 @@
 //Define the type of device, and the available commands for this device.
 //TODO: Make this more dynamic.
 ICommandFactory  * CommandFactory::_factories[] = {new GarageDoorCommand(), new GarageLightCommand(), nullptr};
-Device * CommandFactory::_device = new Garage();
+Device * DeviceIdentCommand::_device = new Garage();
 
 //SYSTEM_MODE(SEMI_AUTOMATIC);
 

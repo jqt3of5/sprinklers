@@ -32,8 +32,8 @@ public:
   void ConfigPins();
   const char * GetDeviceType();
 
-  void SaveSchedule(unint8_t * data);
-  unint8_t * ReadSchedule();
+  void SaveSchedule(uint8_t * data, int len);
+  uint8_t * ReadSchedule();
 
   void ToggleRelay(int relay);
   int RelayState(int relay);
@@ -41,12 +41,12 @@ public:
   void SetDelay(int hours);
   void EnableSchedule(bool enabled);
 private:
-  void SetSchedule(unint8_t * data);
+  void SetSchedule(uint8_t * data, uint8_t count);
   bool _isScheduleEnabled;
   int _delay;
   void RunSchedule();
   Schedule _schedule;
-  Timer * runSchedule;
+  Timer * _runSchedule;
 };
 
 

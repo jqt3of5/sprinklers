@@ -33,7 +33,6 @@ class GarageDoorCommand : public Command, public ICommandFactory
             char stateStr[30] = {0};
             sprintf(stateStr, "{\"state\":%d, \"mem\":%d}", state, System.freeMemory());
             _client->write(stateStr);
-
           }
           else
           {
@@ -78,7 +77,7 @@ class GarageLightCommand : public Command, public ICommandFactory
             }
           else if (!strcmp(_subcmd,"O")) //Update Light time out
             {
-              garage->UpdateTimeout(atoi(_args[0]));
+              garage->UpdateTimeout(atoi(_args[0].arg));
               _client->write("OK");
             }
           else
