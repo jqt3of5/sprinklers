@@ -1,5 +1,11 @@
 #include "Device.h"
 
+struct Arg
+{
+  int len;
+  char * arg;
+};
+
 class ICommand
 {
     public:
@@ -21,24 +27,51 @@ class Command : public ICommand
         {
           _client = client;
         }
+        ~Command()
+        {
+          free(_data);
+          free(_args);
+        }
         virtual ICommand * ParseCommand(char * data, int len)
         {
-            _cmd = strtok(data, " ");
-            _subcmd = strtok(nullptr, " ");
+            _data = new char[len+1]();
+            memcpy(_data, data, len);
 
-            _argc = 0;
-            _args[0] = strtok(nullptr, " ");
-            for(_argc = 0; _args[_argc] != nullptr; _argc++)
+            int offset = ParseCommandPart(_data, len);
+
+            Arg args[10];
+            for(_argc = 0; offset < len && _argc < 10; _argc++)
             {
-                 _args[_argc+1] = strtok(nullptr, " ");
+                 offset += ParseNextArg(_argc, _data + offset, len-offset, args[_argc]);
             }
+
+            if (_argc > 0)
+            {
+              _args = new Arg[_argc];
+              memcpy(_args, args, sizeof(Arg) * _argc);
+            }
+
             return this;
         }
     protected:
+    virtual int ParseCommandPart(char * data, int len)
+    {
+        _cmd = strtok(data, " ");
+        _subcmd = strtok(nullptr, " ");
+        return strlen(_cmd) + strlen(_subcmd) + 2;
+    }
+    virtual int ParseNextArg(int index, char * data, int len, Arg & part)
+    {
+      part.arg = strtok(nullptr, " ");
+      part.len = strlen(part.arg) + 1;
+      return part.len;
+    }
+
+    char * _data;
     TCPClient * _client;
     char * _cmd;
     char * _subcmd;
-    char * _args[10];
+    Arg * _args;
     int _argc;
 };
 
@@ -48,11 +81,9 @@ public:
     DeviceIdentCommand() {}
     DeviceIdentCommand(TCPClient * client) : Command(client) {}
 
-    ICommand * CreateCommand(TCPClient * client, Device * device)
+    ICommand * CreateCommand(TCPClient * client)
     {
-        DeviceIdentCommand * command = new DeviceIdentCommand(client);
-        command->_device = device;
-        return command;
+        return new DeviceIdentCommand(client);
     }
 
     void Execute()
@@ -62,7 +93,7 @@ public:
         free(ident);
     }
     private :
-    Device * _device;
+    static Device * _device;
 };
 
 class NullCommand : public Command
@@ -83,7 +114,7 @@ class CommandFactory
         if (data == nullptr || len == 0)
         {
             DeviceIdentCommand commandFactory;
-            ICommand * command = commandFactory.CreateCommand(client,CommandFactory::_device);
+            ICommand * command = commandFactory.CreateCommand(client);
             return command;
         }
 
@@ -104,7 +135,6 @@ class CommandFactory
         return new NullCommand(client);
     }
     private:
-    static Device * _device;
     static ICommandFactory  *_factories[];
 
 };

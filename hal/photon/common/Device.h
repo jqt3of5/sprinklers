@@ -1,17 +1,19 @@
 #ifndef DEVICE_H
 #define DEVICE_H
+#include <Particle.h>
+
 class Device
 {
 public:
 
   Device() { ConfigPins(); }
-  
-  virtual void ConfigPins() = 0;
+
+  virtual void ConfigPins() {};
   virtual const char * GetDeviceType() = 0;
 
   const char * GetDeviceId()
   {
-    char * tempId = spark_deviceID().c_str();
+    const char * tempId = spark_deviceID().c_str();
     char * id = new char[strlen(tempId) + 1];
     strcpy(id, tempId);
     return id;

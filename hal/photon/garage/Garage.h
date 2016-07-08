@@ -5,7 +5,7 @@
 class Garage : public Device
 {
 public:
-
+  static Garage * Instance;
   Garage();
   void ConfigPins();
   const char * GetDeviceType();

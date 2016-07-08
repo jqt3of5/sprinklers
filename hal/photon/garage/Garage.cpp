@@ -9,6 +9,7 @@
 #define REED_OPEN D0 //The reed switch that indicates the garage door is open
 #define REED_CLOSE D1 //The reed switch that indicates the garage door is closed
 
+Garage* Garage::Instance = new Garage();
 Garage::Garage()
 {
   ConfigPins();
@@ -41,6 +42,12 @@ void Garage::ConfigPins()
 
 void Garage::LightTimedOut()
 {
+  //If the Motion detection is high, then we do not want the light to turn off. So just restart the timer
+  if (digitalRead(MOTION_INPUT))
+  {
+    _motionTimer->startFromISR();
+    return;
+  }
   if (!_lightOverride)
   {
     digitalWrite(LIGHT_SWITCH, LOW);
