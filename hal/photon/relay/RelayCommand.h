@@ -10,13 +10,46 @@ class RelayCommand : public Command, public ICommandFactory
     {
       return !strcmp(prefix, "R");
     }
+<<<<<<< HEAD
+    
+=======
 
+>>>>>>> 76a41758077598af07946dff76ddfb010a7e5123
     ICommand * CreateCommand(TCPClient * client, char *data, int len)
     {
         Command * command = new RelayCommand(client);
         command->ParseCommand(data, len);
         return command;
     }
+<<<<<<< HEAD
+    ICommand * ParseCommand(char *data, int len)
+    {
+        _cmd = strtok(data, " ");
+        _subcmd = strtok(nullptr, " ");
+
+        if (!strcmp(subcmd, "S"))
+        {
+            int cmdPrefixLen = strlen(_cmd) + strlen(_subcmd) + 2;
+            if (cmdPrefixLen < len)
+            {
+                _schedule = new char[len-cmdPrefixLen]();
+                memcpy(_schedule, data + cmdPrefixLen, len-cmdPrefixLen);
+            }
+        }
+        else
+        {
+            return Command::ParseCommand(data, len);
+        }
+    }
+    void Execute()
+    {
+
+    }
+
+    private:
+    char * _schedule;
+}
+=======
 
     virtual int ParseNextArg(int index, char * data, int len, Arg & part)
     {
@@ -62,3 +95,4 @@ class RelayCommand : public Command, public ICommandFactory
           }
     }
 };
+>>>>>>> 76a41758077598af07946dff76ddfb010a7e5123
