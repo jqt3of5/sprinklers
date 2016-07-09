@@ -11,18 +11,10 @@ public:
   virtual void ConfigPins() {};
   virtual const char * GetDeviceType() = 0;
 
-  const char * GetDeviceId()
-  {
-    const char * tempId = spark_deviceID().c_str();
-    char * id = new char[strlen(tempId) + 1];
-    strcpy(id, tempId);
-    return id;
-  }
-
   char * Serialize()
   {
     const char * devTag = "deviceId";
-    const char * deviceId = GetDeviceId();
+    const char * deviceId = spark_deviceID().c_str();
     const char * typeTag = "type";
     const char * type = GetDeviceType();
     int len = strlen(devTag) + strlen(deviceId)
@@ -30,7 +22,6 @@ public:
 
     char * result = new char[2*len];
     sprintf(result, "{\"%s\":\"%s\", \"%s\":\"%s\"}", "type", type, "deviceId", deviceId);
-
 
     return result;
   }

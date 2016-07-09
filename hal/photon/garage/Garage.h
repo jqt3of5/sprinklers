@@ -1,11 +1,13 @@
 #ifndef GARAGE_H
 #define GARAGE_H
 #include "common/Device.h"
+#include "common/eventer/IEventer.h"
 
 class Garage : public Device
 {
 public:
   static Garage * Instance;
+  Garage(IEventer * eventer);
   Garage();
   void ConfigPins();
   const char * GetDeviceType();
@@ -25,6 +27,7 @@ private:
   Timer * _motionTimer;
   Timer * _overrideTimer;
   Timer * _garageDoorPulseTimer;
+  IEventer * _eventer;
 
   void MotionSensed();
   void LightTimedOut();

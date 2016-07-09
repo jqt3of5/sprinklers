@@ -9,10 +9,15 @@
 #define REED_OPEN D0 //The reed switch that indicates the garage door is open
 #define REED_CLOSE D1 //The reed switch that indicates the garage door is closed
 
-Garage* Garage::Instance = new Garage();
+Garage::Garage(IEventer * eventer) : Garage()
+{
+  _eventer = eventer;
+}
+
 Garage::Garage()
 {
   ConfigPins();
+
   _lightOverride = false;
   _lightTimeoutSeconds = 60;
   _motionTimer = new Timer(1000 * _lightTimeoutSeconds, [this]() -> void {this->LightTimedOut();},  true);

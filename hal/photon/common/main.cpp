@@ -5,11 +5,13 @@
 #include "http.h"
 #include "CommandFactory.h"
 #include "garage/GarageCommands.h"
+#include "eventer/SocketEventer.h"
 
 //Define the type of device, and the available commands for this device.
 //TODO: Make this more dynamic.
 ICommandFactory  * CommandFactory::_factories[] = {new GarageDoorCommand(), new GarageLightCommand(), nullptr};
-Device * DeviceIdentCommand::_device = new Garage();
+Garage* Garage::Instance = new Garage(new SocketEventer("jqt3of5.com", 8082, spark_deviceID().c_str()));
+Device * DeviceIdentCommand::_device = Garage::Instance;
 
 //SYSTEM_MODE(SEMI_AUTOMATIC);
 
