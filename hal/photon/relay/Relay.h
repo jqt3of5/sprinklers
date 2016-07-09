@@ -1,6 +1,6 @@
 #ifndef RELAY_H
 #define RELAY_H
-#include <Device.h>
+#include "common/Device.h"
 
 //relay
 struct Zone

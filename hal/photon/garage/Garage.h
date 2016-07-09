@@ -1,6 +1,6 @@
 #ifndef GARAGE_H
 #define GARAGE_H
-#include "Device.h"
+#include "common/Device.h"
 
 class Garage : public Device
 {
