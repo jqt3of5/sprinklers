@@ -1,7 +1,7 @@
 #include <Particle.h>
 #include "SocketEventer.h"
 
-SocketEventer::SocketEventer(char * url, int port, char * deviceId)
+SocketEventer::SocketEventer(char * url, int port, const char * deviceId)
 {
   _url = new char[strlen(url) +1]();
   strcpy(_url, url);

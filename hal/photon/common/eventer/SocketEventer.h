@@ -3,11 +3,11 @@
 class SocketEventer : public IEventer
 {
 public:
-    SocketEventer(char * url, int port, char * deviceId);
+    SocketEventer(char * url, int port, const char * deviceId);
     void eventNotification(char * event, char * data);
 
   protected:
     char * _url;
     int _port;
-    char * deviceId;
+    char * _deviceId;
 };
