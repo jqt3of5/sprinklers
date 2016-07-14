@@ -122,7 +122,7 @@ app.get('/devices', function(req, res) {
 });
 app.get('/events/:deviceId', function(req, res) {
 	var deviceId = req.params.deviceId;
-	res.end(JSON.stringify(event_infos[deviceId]));
+	res.end(JSON.stringify(event_log[deviceId]));
 });
 
 var http_server = app.listen(8080, function(){
