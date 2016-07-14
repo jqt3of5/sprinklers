@@ -161,6 +161,7 @@ socket_server.listen(8081, function(){ console.log("Socket Server Started")});
 var event_log = {}
 var event_server = net.createServer(function(socket)
 {
+	console.log("DEvice connected to event server");
 	socket.once('data', function(data)
 	{
 		console.log("Device Event: " + data);
