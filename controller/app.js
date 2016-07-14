@@ -80,14 +80,14 @@ var cmdQueue = [];
 var isProcessingQueue = false;
 function processQueue()
 {
-        console.log("Start Processing queue");
+    console.log("Start Processing queue");
 	var cmdObj = cmdQueue.pop();
 	if (cmdObj == undefined)
         {
 	        console.log("no commands in the queue. ");
-		isProcessingQueue = false;
-		return;
-	}
+			isProcessingQueue = false;
+			return;
+		}
 	
 	isProcessingQueue = true;
 	var deviceSocket = device_sockets[cmdObj.deviceId];
@@ -158,7 +158,7 @@ var socket_server = net.createServer(function (socket)
 
 socket_server.listen(8081, function(){ console.log("Socket Server Started")});
 
-var event_log = {}
+/*var event_log = {}
 var event_server = net.createServer(function(socket)
 {
 	console.log("DEvice connected to event server");
@@ -179,6 +179,6 @@ var event_server = net.createServer(function(socket)
 		
 	});	
 });
-event_server.listen(8082, function(){ console.log("Event Server Started")});
+event_server.listen(8082, function(){ console.log("Event Server Started")});*/
 
 
