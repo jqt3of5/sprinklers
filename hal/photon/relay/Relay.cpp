@@ -1,8 +1,8 @@
-#include <Particle.h>
+/*#include <Particle.h>
 #include "Relay.h"
 const int EEPROM_SCHEDULE = 5;
 
-//TODO: These singletons step on each other. Figure out a way to get them to get along. 
+//TODO: These singletons step on each other. Figure out a way to get them to get along.
 Relay * Relay::Instance = nullptr;//new Relay();
 
 Relay::Relay()
@@ -116,3 +116,4 @@ void Relay::EnableSchedule(bool enabled)
 {
   _isScheduleEnabled = enabled;
 }
+*/

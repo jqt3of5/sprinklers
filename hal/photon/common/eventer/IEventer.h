@@ -3,7 +3,7 @@
 class IEventer
 {
 public:
-  void eventNotification(char * event, char * data);
+  virtual void eventNotification(char * event, char * data);
 };
 
 #endif

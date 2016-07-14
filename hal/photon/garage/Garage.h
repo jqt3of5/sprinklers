@@ -1,7 +1,7 @@
 #ifndef GARAGE_H
 #define GARAGE_H
-#include "common/Device.h"
-#include "common/eventer/IEventer.h"
+#include "Device.h"
+#include "IEventer.h"
 
 class Garage : public Device
 {

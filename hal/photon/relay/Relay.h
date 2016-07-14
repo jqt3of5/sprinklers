@@ -1,4 +1,4 @@
-#ifndef RELAY_H
+/*#ifndef RELAY_H
 #define RELAY_H
 #include "common/Device.h"
 
@@ -51,3 +51,4 @@ private:
 
 
 #endif
+*/

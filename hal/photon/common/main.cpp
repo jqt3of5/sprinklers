@@ -4,8 +4,8 @@
 #include <softap_http.h>
 #include "http.h"
 #include "CommandFactory.h"
-#include "garage/GarageCommands.h"
-#include "eventer/SocketEventer.h"
+#include "GarageCommands.h"
+#include "SocketEventer.h"
 
 //Define the type of device, and the available commands for this device.
 //TODO: Make this more dynamic.
