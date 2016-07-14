@@ -9,9 +9,11 @@
 
 //Define the type of device, and the available commands for this device.
 //TODO: Make this more dynamic.
+//IEventer * _eventer = new SocketEventer("jqt3of5.com", 8082, "asdf"));//spark_deviceID().c_str()));
 ICommandFactory  * CommandFactory::_factories[] = {new GarageDoorCommand(), new GarageLightCommand(), nullptr};
-Garage* Garage::Instance = new Garage(new SocketEventer("jqt3of5.com", 8082, spark_deviceID().c_str()));
+Garage* Garage::Instance = new Garage();//_eventer);
 Device * DeviceIdentCommand::_device = Garage::Instance;
+
 
 //SYSTEM_MODE(SEMI_AUTOMATIC);
 
@@ -68,6 +70,8 @@ void loop()
 
 void readDataFromCloud()
 {
+    //TODO: This won't necessarily be all of the data!
+    //Implement something that works better. 
     int total = _client.available();
     if (total)
     {

@@ -9,10 +9,10 @@
 #define REED_OPEN D0 //The reed switch that indicates the garage door is open
 #define REED_CLOSE D1 //The reed switch that indicates the garage door is closed
 
-Garage::Garage(IEventer * eventer) : Garage()
+/*Garage::Garage(IEventer * eventer) : Garage()
 {
   _eventer = eventer;
-}
+}*/
 
 Garage::Garage()
 {
@@ -67,14 +67,14 @@ void Garage::LightOverrideTimedOut()
 }
 void Garage::MotionSensed()
 {
-  _eventer->eventNotification("motion", " ");
+  //_eventer->eventNotification("motion", " ");
   digitalWrite(LIGHT_SWITCH, HIGH);
   _motionTimer->startFromISR();
 }
 
 void Garage::ToggleLight()
 {
-  _eventer->eventNotification("toggle", "light");
+  //_eventer->eventNotification("toggle", "light");
   _lightOverride = true;
   digitalWrite(LIGHT_SWITCH, 1^digitalRead(LIGHT_SWITCH));
   _overrideTimer->startFromISR();
@@ -82,7 +82,7 @@ void Garage::ToggleLight()
 
 void Garage::ToggleDoor()
 {
-  _eventer->eventNotification("toggle", "door");
+  //_eventer->eventNotification("toggle", "door");
   digitalWrite(GARAGE_SWITCH, HIGH);
  _garageDoorPulseTimer->startFromISR();
 }

@@ -7,7 +7,7 @@ class Garage : public Device
 {
 public:
   static Garage * Instance;
-  Garage(IEventer * eventer);
+  //Garage(IEventer * eventer);
   Garage();
   void ConfigPins();
   const char * GetDeviceType();
@@ -27,7 +27,7 @@ private:
   Timer * _motionTimer;
   Timer * _overrideTimer;
   Timer * _garageDoorPulseTimer;
-  IEventer * _eventer;
+  //IEventer * _eventer;
 
   void MotionSensed();
   void LightTimedOut();

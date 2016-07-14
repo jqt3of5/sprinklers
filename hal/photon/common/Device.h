@@ -14,7 +14,7 @@ public:
   char * Serialize()
   {
     const char * devTag = "deviceId";
-    const char * deviceId = spark_deviceID().c_str();
+    const char * deviceId = "asdf";//spark_deviceID().c_str();
     const char * typeTag = "type";
     const char * type = GetDeviceType();
     int len = strlen(devTag) + strlen(deviceId)

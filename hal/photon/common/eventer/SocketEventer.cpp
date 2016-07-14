@@ -1,7 +1,7 @@
 #include <Particle.h>
 #include "SocketEventer.h"
 
-SocketEventer::SocketEventer(char * url, int port, const char * deviceId)
+/*SocketEventer::SocketEventer(char * url, int port, const char * deviceId)
 {
   _url = new char[strlen(url) +1]();
   strcpy(_url, url);
@@ -10,17 +10,24 @@ SocketEventer::SocketEventer(char * url, int port, const char * deviceId)
   strcpy(_deviceId, deviceId);
 
   _port = port;
+
+  _numEvents = 0;
 }
 
 void SocketEventer::eventNotification(char * event, char * data)
+{
+    char jsonObj[100] = {0};
+    sprintf(jsonObj, "{\"deviceId\":\"%s\", \"%s\":\"%s\"}",_deviceId, event, data);
+    client.write((uint8_t*)jsonObj, strlen(jsonObj));
+    client.stop();
+}
+
+void SocketEventer::processNotifications()
 {
   TCPClient client;
   byte addr[4] = {52,34,40,4};
   if (client.connect(addr, _port))
   {
-    /*char jsonObj[100] = {0};
-    sprintf(jsonObj, "{\"deviceId\":\"%s\", \"%s\":\"%s\"}",_deviceId, event, data);
-    client.write((uint8_t*)jsonObj, strlen(jsonObj));
-    client.stop();*/
+
   }
-}
+}*/
